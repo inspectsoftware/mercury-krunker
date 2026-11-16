@@ -5,7 +5,10 @@
 
 mod bridge;
 mod browser;
+mod discord;
 mod files;
+mod media;
+mod mods;
 mod paths;
 mod renderer;
 mod resources;

@@ -147,6 +147,37 @@ wrap_life_span_handler! {
             OPEN_BROWSERS.fetch_add(1, Ordering::Relaxed);
         }
 
+        // Lobby, map and mod links (krunker.io/?game=...) load in the game window instead of a popup.
+        #[allow(clippy::too_many_arguments)]
+        fn on_before_popup(
+            &self,
+            _browser: Option<&mut Browser>,
+            _frame: Option<&mut Frame>,
+            _popup_id: i32,
+            target_url: Option<&CefString>,
+            _target_frame_name: Option<&CefString>,
+            _target_disposition: WindowOpenDisposition,
+            _user_gesture: i32,
+            _popup_features: Option<&PopupFeatures>,
+            _window_info: Option<&mut WindowInfo>,
+            _client: Option<&mut Option<Client>>,
+            _settings: Option<&mut BrowserSettings>,
+            _extra_info: Option<&mut Option<DictionaryValue>>,
+            _no_javascript_access: Option<&mut i32>,
+        ) -> i32 {
+            if !(settings::bool("mods.enabled", true) && settings::bool("mods.linksInGame", true)) {
+                return 0;
+            }
+            let Some(link) = target_url.and_then(|u| crate::mods::game_link(&u.to_string())) else { return 0 };
+            let loaded = with_main_window(|w| {
+                let frame = w.child_view_at(0)?.as_browser_view()?.browser()?.main_frame()?;
+                frame.load_url(Some(&CefString::from(link.as_str())));
+                w.activate();
+                Some(())
+            });
+            loaded.flatten().is_some() as i32
+        }
+
         fn on_before_close(&self, browser: Option<&mut Browser>) {
             bridge::on_before_close(browser.cloned());
             // Popups count too: quit when the last window of any kind closes.
