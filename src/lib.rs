@@ -9,6 +9,7 @@ mod bridge;
 mod browser;
 mod discord;
 mod files;
+mod log;
 mod media;
 mod mods;
 mod net;
@@ -16,6 +17,7 @@ mod paths;
 mod renderer;
 mod resources;
 mod settings;
+mod update;
 
 use cef::*;
 

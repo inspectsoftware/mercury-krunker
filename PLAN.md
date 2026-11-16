@@ -199,7 +199,19 @@ Still to verify with a login: Krunker's ranked queue button and the ranked ratin
 
 - Crankshaft and idkr formats, with an in-client manager. Off by default; cosmetic only. Example scripts.
 
-### M11: ship
+### M11: ship ✅ (2026-11-16)
+
+- **Installer:** `cargo xtask installer`, Inno Setup, per user (no admin), 134 MB.
+  - Tested: silent install, start after a silent install, Add/Remove entry, Start menu shortcut, clean uninstall
+    that keeps the player's data.
+- **Auto-updater** (`src/update.rs`, `modules/updater.js`):
+  - reads GitHub's latest release through WinHTTP;
+  - only downloads installer assets hosted on GitHub, and checks them against GitHub's SHA-256 digest;
+  - shows a progress window, then installs silently and restarts;
+  - shows what's new once after an update.
+  - The repo is private, so checks answer "newest version" until releases are public.
+- **Release workflow:** `.github/workflows/release.yml` builds and publishes on a `vX.Y.Z` tag. Not run yet.
+- **Crash log:** `<data>/logs/mercury.log` records Rust panics and renderer terminations.
 
 - Auto-updater with a download progress window and changelogs.
 - Inno Setup installer; crash log.

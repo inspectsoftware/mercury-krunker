@@ -31,9 +31,10 @@ import rankedRating from "./rankedRating.js";
 import accounts from "./accounts.js";
 import market from "./market.js";
 import userscripts from "./userscripts.js";
+import updater from "./updater.js";
 
 export default [
-  general, engine, aimFreezeFix, rawInput, blocklist,
+  general, updater, engine, aimFreezeFix, rawInput, blocklist,
   hudEditor, keystrokes, menuTimer,
   cleanerMenu, mercuryCss, classicMenu, icons, motionBlur, cssManager, swapper,
   betterChat, chatLogs, endMessage,

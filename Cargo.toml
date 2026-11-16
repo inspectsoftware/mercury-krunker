@@ -18,12 +18,19 @@ serde_json = "1"
 windows = { version = "0.62", features = ["Media_Control"] }
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
+    "Win32_Networking_WinHttp",
     "Win32_Security_Cryptography",
     "Win32_System_Com",
     "Win32_System_Com_Urlmon",
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
 ] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+# Line tables keep panic locations in the crash log; the bundle step also expects mercury.pdb.
+debug = "line-tables-only"
 
 [workspace]
 members = ["xtask", "tools/latency"]

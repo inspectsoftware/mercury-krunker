@@ -104,6 +104,7 @@ impl BrowserSideHandler for Bridge {
                 reply(&callback, Ok(Value::Null));
                 browser::with_main_window(|w| w.close());
             }
+            "update.install" => reply(&callback, crate::update::install()),
             // Everything else may touch the disk: keep it off the UI thread, which forwards mouse input.
             _ => {
                 std::thread::spawn(move || reply(&callback, command(&cmd, &request)));
@@ -122,6 +123,7 @@ fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
         "mods" => crate::mods::command(cmd, request),
         "accounts" => crate::accounts::command(cmd, request),
         "net" => crate::net::command(cmd, request),
+        "update" => crate::update::command(cmd, request),
         _ => return None,
     })
 }

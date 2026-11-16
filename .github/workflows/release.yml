@@ -1,0 +1,35 @@
+# Push a tag vX.Y.Z (matching Cargo.toml's version) to build the installer and publish it as a GitHub release.
+# The client's auto-updater (src/update.rs) offers the latest release's installer.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: ilammy/msvc-dev-cmd@v1
+      - name: The tag must match Cargo.toml
+        shell: pwsh
+        run: |
+          $v = (Select-String -Path Cargo.toml -Pattern '^version = "(.+)"' | Select-Object -First 1).Matches[0].Groups[1].Value
+          if ("v$v" -ne "${{ github.ref_name }}") { throw "tag ${{ github.ref_name }} does not match Cargo.toml $v" }
+      - name: Inno Setup
+        run: choco install innosetup --no-progress -y
+      - name: Build the installer
+        run: cargo xtask installer
+      - name: Publish the release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" (Get-ChildItem target/installer/*.exe).FullName --title "Mercury Client ${{ github.ref_name }}" --generate-notes

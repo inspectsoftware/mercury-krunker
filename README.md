@@ -23,6 +23,15 @@ The first build downloads CEF 156 into `.cef/` and the page script's packages in
 - **Data:** settings, profile and swaps live in `%LOCALAPPDATA%\Mercury`. `MERCURY_DATA_DIR` points elsewhere (test
   runs, portable use).
 - **Safe mode:** `mercury.exe --safe-mode` starts without the page script and custom flags.
+
+## Installer and releases
+
+- **Installer:** `cargo xtask installer` builds a release bundle and the installer at
+  `target/installer/MercuryClient-Setup-<version>.exe` (Inno Setup 6, per user, no admin rights).
+- **Releasing:** raise `version` in `Cargo.toml`, commit, then push a tag `v<version>`. GitHub Actions
+  (`.github/workflows/release.yml`) builds the installer and publishes the release.
+- **Updates:** clients offer the newest release, check its SHA-256 and update themselves. While the repo is private,
+  the update check can't see releases.
 - **Settings window:** F8 in the game.
 
 ## Credits

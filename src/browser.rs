@@ -19,6 +19,7 @@ thread_local! {
 }
 
 pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
+    crate::log::install_panic_hook();
     settings::load();
     let profile = paths::profile_dir()
         .map(|p| p.to_string_lossy().into_owned())
@@ -207,10 +208,12 @@ wrap_request_handler! {
         fn on_render_process_terminated(
             &self,
             browser: Option<&mut Browser>,
-            _status: TerminationStatus,
-            _error_code: i32,
-            _error_string: Option<&CefString>,
+            status: TerminationStatus,
+            error_code: i32,
+            error_string: Option<&CefString>,
         ) {
+            let why = error_string.map(CefString::to_string).unwrap_or_default();
+            crate::log::line(&format!("renderer ended: status {:?}, code {error_code}, {why}", sys::cef_termination_status_t::from(status)));
             bridge::on_render_process_terminated(browser.cloned());
         }
 
