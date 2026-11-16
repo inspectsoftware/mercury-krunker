@@ -44,7 +44,17 @@ pub fn reload_blocklist() {
 }
 
 fn scan_swaps() -> HashSet<String> {
-    files::dir("swap").map(|d| files::walk(&d).into_iter().map(|(p, _)| p).collect()).unwrap_or_default()
+    files::dir("swap")
+        .map(|d| files::walk(&d).into_iter().map(|(p, _)| p).filter(|p| swappable(p)).collect())
+        .unwrap_or_default()
+}
+
+/// Swaps replace assets and styles, never Krunker's code: no scripts, WebAssembly or pages, nothing from the
+/// loader (`pkg/`) or the page bundle (`static/`).
+fn swappable(path: &str) -> bool {
+    let lower = path.to_ascii_lowercase();
+    let code = [".js", ".mjs", ".wasm", ".html", ".htm"].iter().any(|ext| lower.ends_with(ext));
+    !code && !lower.starts_with("pkg/") && !lower.starts_with("static/")
 }
 
 pub fn reload_swaps() {
@@ -201,6 +211,16 @@ mod tests {
         assert!(!is_blocked(&list, "https://krunker.io/?ref=doubleclick.net"));
         assert!(is_blocked(&list, "https://cdn.example.com/ads/banner.js"));
         assert!(!is_blocked(&list, "https://cdn.example.com/game.js"));
+    }
+
+    #[test]
+    fn game_code_is_never_swappable() {
+        for path in ["pkg/loader-5fHFc.wasm", "pkg/loader-5fHFc.mjs", "static/index-rc6oMoyK.js", "libs/howler.min.JS", "index.html"] {
+            assert!(!swappable(path), "{path}");
+        }
+        for path in ["textures/ammo_0.png", "css/main_custom.css", "sound/hit.mp3", "models/weapons/weapon_1.obj"] {
+            assert!(swappable(path), "{path}");
+        }
     }
 
     #[test]

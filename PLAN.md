@@ -79,18 +79,47 @@ wants. Windows first.
 
 ### M3: auto-detect, diagnostics, safety
 
+Measure and verify first, on a quiet machine (no other builds or clients running):
+
+1. **Chromium's own frame scheduling before custom DXGI scheduling.** Checked in Chromium's source:
+   - tearing is native under `--disable-gpu-vsync`;
+   - `DXGIWaitableSwapChain` (with `DXGIWaitableSwapChainMaxQueuedFrames`) and `DXGISwapChainPresentInterval0` are built-in features;
+   - Chromium never waits on the latency handle.
+
+   The present hook keeps only what Chromium can't do (the wait, the FPS limiter, stats, the OBS producer) and never
+   rewrites Chromium's swapchain flags. Measure stock vs native features vs hook.
+2. **Graphics backends** (D3D11, D3D11on12, OpenGL, Vulkan) on real Krunker rendering: spectating a live match, not
+   a synthetic scene. FPS and frame-time p50/p99 per backend; don't assume Vulkan wins.
+3. **Process isolation:** CPU and work per process type (browser, renderer, GPU, utilities) in the menu and while
+   spectating. Switch off Chrome features Krunker doesn't use (component updater, translate, media router...), but
+   only where it measurably helps.
+4. **Input latency:** input-to-screen, not polling rate. OS-level `SendInput` → the frame on the display, read with
+   DXGI Desktop Duplication on a test page, per configuration. Real photon latency needs a sensor (LDAT or a
+   photodiode): document the protocol.
+5. **Capture overhead:** FPS and frame times with the OBS shared-texture capture off, attached, and attached while
+   OBS records or streams.
+6. **Memory:** private memory per process type at idle (just started), in the menu, and while spectating.
+7. **Rules check:** confirm Mercury's hooks and page changes against Krunker's and FRVR's current rules on clients;
+   record the sources.
+
+Then:
+
 - A bench scene (WebGL), plus the held-click WebSocket delay test from the research.
 - **Auto-Detect Best Settings:** benchmarks the PC, picks engine and game settings, and can always be reverted.
 - **Diagnostics report:** system, GPU, settings, frame stats and logs in one file.
 - **Safe mode and crash finder:** bisects modules and flags to find the one that breaks the client.
 
-### M4: input and HUD
+### M4: input and HUD ✅ (merged 2026-11-16; mouse ring and in-match behaviour still to verify in a real match)
 
 - **Keystrokes:** bound movement keys and mouse, lit while pressed, plus a ring showing mouse direction.
 - **HUD editor:** drag, resize and hide every in-game HUD element and the menu timer, with snapping.
 - Menu timer.
 
-### M5: look
+### M5: look ✅ (merged 2026-11-16, except custom sky)
+
+**Custom sky: not built.** Official maps draw their sky inside the game's own renderer from map data. No sky texture
+is ever requested, and Krunker has no sky setting, so it would need hooking the renderer. Sky images that custom
+maps load can be replaced with the swapper.
 
 - **Resource swapper with a manager:**
   - shows which game files the swaps replace;
