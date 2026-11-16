@@ -376,6 +376,20 @@ wrap_window_delegate! {
             }
         }
 
+        // CEF's own defaults are true, but cef-rs defaults every unimplemented method to 0: without these the window
+        // has no minimize or maximize button, can't be resized, and ignores maximize().
+        fn can_resize(&self, _window: Option<&mut Window>) -> i32 {
+            1
+        }
+
+        fn can_maximize(&self, _window: Option<&mut Window>) -> i32 {
+            1
+        }
+
+        fn can_minimize(&self, _window: Option<&mut Window>) -> i32 {
+            1
+        }
+
         fn can_close(&self, _window: Option<&mut Window>) -> i32 {
             let browser_view = self.browser_view.borrow();
             match browser_view.as_ref().and_then(|v| v.browser()).and_then(|b| b.host()) {
