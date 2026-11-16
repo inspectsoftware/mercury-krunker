@@ -1,6 +1,7 @@
 [package]
 name = "latency"
 version = "0.1.0"
+license = "MIT"
 edition = "2024"
 publish = false
 description = "Dev tool: input-to-screen latency of a Mercury window (SendInput + DXGI Desktop Duplication)"

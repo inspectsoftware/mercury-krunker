@@ -2,6 +2,7 @@
   "name": "mercury-frontend",
   "private": true,
   "type": "module",
+  "license": "MIT",
   "description": "The script Mercury Client runs in krunker.io",
   "scripts": {
     "build": "esbuild src/main.js --bundle --format=iife --target=chrome150 --loader:.css=text --loader:.userjs=text --outfile=../target/frontend.js",

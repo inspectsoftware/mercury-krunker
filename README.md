@@ -64,4 +64,10 @@ Mercury's code is its own. These projects gave us ideas, or are used as librarie
 - [krunkerresourcehub/krh-client](https://github.com/krunkerresourcehub/krh-client): ideas (quick alt login, safe
   mode).
 
+## License
+
+MIT, see [LICENSE](LICENSE). Third-party notices ship with every build:
+- Chromium's and CEF's licenses in `CREDITS.html`;
+- krapio's MIT notice inside `frontend.js`.
+
 Mercury Client is not affiliated with Krunker.io or FRVR.
