@@ -1,0 +1,16 @@
+[package]
+name = "mercury"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# CEF's sandbox bootstrap.exe (shipped as mercury.exe) loads this DLL for every process.
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+# Exact pin: our patched CEF build (M2) must match these bindings' API hash.
+cef = { version = "=156.6.0", default-features = false, features = ["sandbox"] }
+
+[workspace]
+members = ["xtask"]

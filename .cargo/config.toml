@@ -1,0 +1,6 @@
+[alias]
+xtask = "run -p xtask --"
+
+[env]
+# The CEF distribution, downloaded here on first build. From M2 on, point it at our patched CEF build.
+CEF_PATH = { value = ".cef", relative = true }
