@@ -10,7 +10,15 @@ export default {
     {
       key: "uncapped",
       label: "Uncapped FPS",
-      desc: "No frame rate limit and no vsync. Keep Krunker's aim freeze fix on with this (Input).",
+      desc: "No frame rate limit and no vsync.",
+      type: "bool",
+      default: true,
+      restart: true,
+    },
+    {
+      key: "freezeFix",
+      label: "Aim freeze fix",
+      desc: "Stops other players freezing while you shoot with uncapped FPS: Chromium no longer treats moving with the left button held as a reason to put frames ahead of the game's network messages. Needs Raw mouse input (Input).",
       type: "bool",
       default: true,
       restart: true,

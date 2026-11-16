@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Mercury aim freeze test</title>
+<!-- The aim freeze (Chromium issue 415071737) on a test page: WebGL every animation frame with 3 ms of main-thread
+     work and a non-passive mousemove listener, like the game. A 16 ms timer runs at normal priority, like the
+     game's WebSocket messages; tools/freeze.mjs holds the mouse button, moves the mouse, and reads how late it got. -->
+<style>html, body { margin: 0; height: 100%; background: #000; overflow: hidden; } canvas { display: block; width: 100vw; height: 100vh; }</style>
+<canvas id="c"></canvas>
+<script>
+  const canvas = document.getElementById("c");
+  const gl = canvas.getContext("webgl2");
+  let down = false;
+  addEventListener("mousedown", () => (down = true));
+  addEventListener("mouseup", () => (down = false));
+  addEventListener("mousemove", (e) => (window.lastMove = e.movementX));
+  function frame() {
+    if (canvas.width !== innerWidth) [canvas.width, canvas.height] = [innerWidth, innerHeight];
+    const until = performance.now() + 3;
+    while (performance.now() < until) {}
+    gl.clearColor(down ? 0.3 : 0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  window.gaps = [];
+  let last = performance.now();
+  setInterval(() => {
+    const now = performance.now();
+    window.gaps.push(now - last);
+    last = now;
+  }, 16);
+</script>

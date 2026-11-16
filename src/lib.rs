@@ -10,6 +10,7 @@ mod browser;
 mod diag;
 mod discord;
 mod files;
+mod freeze_fix;
 mod log;
 mod media;
 mod mods;
@@ -71,7 +72,7 @@ fn engine_switches() -> Vec<(String, Option<String>)> {
 
     if settings::bool("engine.uncapped", true) {
         // Stock Chromium starves WebSocket messages under held-click input when uncapped (Chromium issue
-        // 415071737, the "aim freeze"); Krunker's own aim freeze fix setting (on by default in Mercury) covers it.
+        // 415071737, the "aim freeze"); freeze_fix.rs removes the cause, Krunker's own setting is the backup.
         // Without GPU vsync Chromium also creates its swap chains with tearing and presents with sync interval 0 and
         // ALLOW_TEARING (measured with the present hook), so the DXGISwapChainPresentInterval0 feature adds nothing.
         switches.push(("disable-frame-rate-limit".into(), None));

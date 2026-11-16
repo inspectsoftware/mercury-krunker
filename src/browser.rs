@@ -27,6 +27,13 @@ pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
     let safe = std::env::args().any(|a| a == "--safe-mode");
     // Before initialize: Chromium may launch the GPU process during it.
     crate::perf::create_shared(safe);
+    // Before Chromium reads any raw input (freeze_fix.rs explains why).
+    if !safe && settings::bool("engine.freezeFix", true) {
+        match crate::freeze_fix::install() {
+            Ok(slots) => crate::log::line(&format!("aim freeze fix on ({slots} import slot)")),
+            Err(e) => crate::log::line(&format!("aim freeze fix not installed: {e}")),
+        }
+    }
     // After a crash, Chrome's session restore reopens the last page in a window Mercury doesn't manage (no page
     // script, no blocklist). Mercury always opens its own window, so the saved sessions go before Chromium starts.
     if let Some(dir) = paths::profile_dir() {

@@ -51,7 +51,9 @@ wants. Windows first.
 - **Performance only:** one switch turns off every cosmetic module and hides its settings; switching back restores
   the player's choices.
 - Settings export and import; restart; `--safe-mode`; single instance; version tag; F11 fullscreen.
-- **Aim freeze:** Krunker's own fix (`kro_setngss_aimFreezeFix`) is on by default.
+- **Aim freeze:** `src/freeze_fix.rs` takes the left button's state out of raw mouse moves, so Chromium never
+  starts the input priority that starves the game's network messages. Krunker's own fix (`kro_setngss_aimFreezeFix`)
+  is on by default as well.
 - Raw input (`unadjustedMovement`).
 - **Engine settings:** uncapped FPS, graphics backend (ANGLE: D3D11, D3D11on12, OpenGL, Vulkan), color profile,
   custom Chromium flags.
@@ -246,7 +248,7 @@ Still to verify with a login: Krunker's ranked queue button and the ranked ratin
 ### Not doing (for now)
 
 - **Chromium patches** (no Chromium build, by decision). Each item, and what replaces it:
-  - input priority: Krunker's aim freeze fix replaces it;
+  - input priority: the raw input hook in `src/freeze_fix.rs` replaces it;
   - compositor frame pacing and FPS limiter: the present hook limiter replaces them;
   - Web Audio panner and AudioParam patches: the JS audio fix replaces them;
   - canvas buffer cache: nothing replaces it;
@@ -261,5 +263,6 @@ Still to verify with a login: Krunker's ranked queue button and the ranked ratin
 - **Krunker updates** break DOM hooks (Season 10 broke other clients' menu timers). Keep hooks few, CSS first, and
   let modules fail alone.
 - **Unofficial APIs** (game and token tiers) can change any time.
-- **The aim freeze** depends on Krunker keeping its own fix setting.
+- **The aim freeze fix** depends on Chromium's raw input path (`HWNDMessageHandler::OnInputEvent`) and on libcef.dll
+  delay-loading user32; a CEF update can change either. The log says whether the hook went in.
 - **Anti-tamper:** the loader reads mouse movement. Keep page overrides minimal.
