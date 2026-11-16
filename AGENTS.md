@@ -27,6 +27,9 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/files.rs` | `files.*`: read/write in `<data>/{swap,css,scripts,sounds,images}` only |
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
+| `src/gpu_hook.rs`, `src/present.rs` | GPU process: the DXGI present hook (limiter, present stats, OBS texture); the shared memory block it shares with the browser and OBS |
+| `src/perf.rs`, `src/system.rs`, `src/nvidia.rs` | `perf.*` (stats, HighQoS, CPU throttler, system check), `system.*` (GPU preference, Power Boost, NVIDIA profile: each undone through `<data>/system-restore.json`) |
+| `crates/obs-mercury-capture` | The OBS 33 plugin (GPL, separate from mercury.dll); `examples/test_reader.rs` checks the capture without OBS |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
 | `tools/` | dev helpers: `cdp.mjs` (eval in the page), `drive.mjs` (keys/clicks/screenshot) |

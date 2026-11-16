@@ -25,14 +25,47 @@ The first build downloads CEF 156 into `.cef/` and the page script's packages in
 - **Safe mode:** `mercury.exe --safe-mode` starts without the page script and custom flags.
 - **Settings window:** F8 in the game.
 
+## OBS capture
+
+`crates/obs-mercury-capture` is an OBS Studio 33 plugin with a **Mercury Client** video source: it shows the game as
+Mercury presents it, from a texture Mercury's GPU process shares, without window or game capture. It is GPL-2.0-or-later
+(it links libobs) and separate from Mercury itself: the two only share a memory block and the texture.
+
+```powershell
+cargo build -p obs-mercury-capture --release
+```
+
+Install it (OBS closed; the folder and the file must both be named `obs-mercury-capture`):
+
+```powershell
+$root = "$env:ProgramData\obs-studio\plugins\obs-mercury-capture"
+New-Item -ItemType Directory -Force "$root\bin\64bit", "$root\data"
+Copy-Item target\release\obs_mercury_capture.dll "$root\bin\64bit\obs-mercury-capture.dll"
+```
+
+Then in OBS: Sources → + → Mercury Client. It needs Mercury's present hook (Engine → Present hook) and OBS running on the
+same GPU as the game (Windows Settings → Display → Graphics). To uninstall, delete that `obs-mercury-capture` folder.
+`cargo run -p obs-mercury-capture --example test_reader` checks Mercury's side without OBS.
+
+For the game's sound alone, add OBS's Application Audio Capture and pick the window `[mercury.exe]: Mercury Client`.
+Chromium plays audio from its audio service, a child of that window's process, and OBS records the window's whole
+process tree.
+
 ## Credits
 
 Mercury's code is its own. These projects gave us ideas, or are used as libraries:
 
 - [NullDev/Kute](https://github.com/NullDev/Kute): the feature set we aim for, and the architecture idea of a Rust
-  host on CEF with a present hook in the GPU process and an OBS shared-texture capture.
+  host on CEF with a present hook in the GPU process and an OBS shared-texture capture; Laptop Power Boost, the NVIDIA
+  driver profile, HighQoS, the CPU throttler and the audio stutter fix as features.
 - [NullDev/krapio](https://github.com/NullDev/krapio) (MIT, used as a library): the Krunker API client.
-- [slavcp/glorp](https://github.com/slavcp/glorp): the DXGI present hook and shared-texture OBS capture ideas.
+- [slavcp/glorp](https://github.com/slavcp/glorp): the DXGI present hook (vtable patching through a throwaway swap
+  chain, the frame limiter, MMCSS, stats in shared memory, skipping cross-adapter laptops) and shared-texture OBS
+  capture ideas.
+- [NVIDIA/nvapi](https://github.com/NVIDIA/nvapi) (MIT): the NVAPI SDK headers, for the driver settings function IDs,
+  structs and setting IDs in `src/nvidia.rs`.
+- [obsproject/obs-studio](https://github.com/obsproject/obs-studio) (GPL-2.0): the OBS 33 headers the capture plugin's
+  libobs declarations were written against (plugin crate only).
 - [6ct/client-pp](https://github.com/6ct/clientpp): Chromium flags.
 - [KraXen72/crankshaft](https://github.com/KraXen72/crankshaft): the menu timer and matchmaker ideas, and Krunker's
   own aim freeze fix setting.
