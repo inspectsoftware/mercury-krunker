@@ -98,7 +98,7 @@ impl BrowserSideHandler for Bridge {
             "shell.open" => reply(&callback, open_url(&request)),
             "app.restart" => {
                 reply(&callback, Ok(Value::Null));
-                browser::restart();
+                browser::restart(request["safe"].as_bool().unwrap_or(false));
             }
             "app.quit" => {
                 reply(&callback, Ok(Value::Null));
@@ -124,6 +124,7 @@ fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
         "accounts" => crate::accounts::command(cmd, request),
         "net" => crate::net::command(cmd, request),
         "update" => crate::update::command(cmd, request),
+        "diag" => crate::diag::command(cmd, request),
         _ => return None,
     })
 }

@@ -7,6 +7,7 @@ mod accounts;
 mod attention;
 mod bridge;
 mod browser;
+mod diag;
 mod discord;
 mod files;
 mod log;

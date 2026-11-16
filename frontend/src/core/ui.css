@@ -65,6 +65,12 @@
 }
 .mc-version { position: absolute; left: 12px; bottom: 8px; z-index: 5; font: 11px "Segoe UI", sans-serif; color: rgba(255, 255, 255, 0.4); pointer-events: none; }
 .mc-menu-btn { cursor: pointer; }
+.mc-huntbar {
+  position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 2147483002; display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: #1c1f25; border: 1px solid #4b8fbf; border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  font: 13.5px/1.4 "Segoe UI", system-ui, sans-serif !important; color: #e7e9ec;
+}
+.mc-huntbar .mc-btn { font-family: "Segoe UI", system-ui, sans-serif !important; }
 /* The Mercury tab inside Krunker's settings window (krunkerTab.js) uses Krunker's own classes; these only add what
    Krunker has no style for. */
 .mc-koff { opacity: 0.45; }

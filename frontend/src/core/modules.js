@@ -37,8 +37,18 @@ export function visible(mod) {
   return !mod || mod.perf || mod.core || !settings.get(PERFORMANCE_ONLY);
 }
 
+/** Modules the crash finder (modules/support.js) switches off for this page load, without touching settings. */
+export const HUNT = "mercury:hunt";
+const huntOff = (() => {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(HUNT))?.off ?? []);
+  } catch {
+    return new Set();
+  }
+})();
+
 export function enabled(mod) {
-  if (!visible(mod)) return false;
+  if (!visible(mod) || huntOff.has(mod.id)) return false;
   return mod.toggle === false || !!settings.get(`${mod.id}.enabled`);
 }
 

@@ -12,6 +12,8 @@ delete window.__MERCURY__;
 
 export const version = boot.version ?? "dev";
 export const safeMode = !!boot.safeMode;
+/** The previous run never shut down cleanly (crash, killed, power loss). */
+export const uncleanExit = !!boot.uncleanExit;
 export const bootSettings = boot.settings ?? {};
 
 /** Calls a host command; resolves with its JSON result, rejects with the host's error message. */

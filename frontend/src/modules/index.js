@@ -32,9 +32,10 @@ import accounts from "./accounts.js";
 import market from "./market.js";
 import userscripts from "./userscripts.js";
 import updater from "./updater.js";
+import support from "./support.js";
 
 export default [
-  general, updater, engine, aimFreezeFix, rawInput, blocklist,
+  general, updater, support, engine, aimFreezeFix, rawInput, blocklist,
   hudEditor, keystrokes, menuTimer,
   cleanerMenu, mercuryCss, classicMenu, icons, motionBlur, cssManager, swapper,
   betterChat, chatLogs, endMessage,

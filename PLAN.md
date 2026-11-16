@@ -102,8 +102,24 @@ Measure and verify first, on a quiet machine (no other builds or clients running
 7. **Rules check:** confirm Mercury's hooks and page changes against Krunker's and FRVR's current rules on clients;
    record the sources.
 
-Then:
+Done (2026-11-16):
 
+- **Diagnostics report** (General → Diagnostics report), as a file in Downloads:
+  - Windows, CPU, memory, the engine switches in effect, GPU, page FPS, Mercury and Krunker settings, the log tail;
+  - never accounts, passwords or login tokens.
+- **Crash finder** (General → Find a problem module):
+  - binary search over the modules that are on, asking "still there?" after each reload;
+  - found the culprit in 5 steps out of 22 in a live test.
+- **Unclean-exit detection:** a marker file that only a clean shutdown removes. The next start logs it and
+  suggests the crash finder or safe mode. "Restart in safe mode" is in General.
+- **Closing never hangs** on Krunker's "Leave site?" (`beforeunload`) prompt; measured 0.5 s to close.
+- **Tools:** `tools/bench.ps1` (frames, CPU, memory per process type), `tools/latency.ps1` (input to screen),
+  `docs/rules.md`.
+
+Still to do:
+
+- Auto-Detect Best Settings. Needs M2's engine options, so it comes after that merge.
+- Run the measurements on a quiet machine. The latency test takes over the mouse, so it needs the owner's go.
 - A bench scene (WebGL), plus the held-click WebSocket delay test from the research.
 - **Auto-Detect Best Settings:** benchmarks the PC, picks engine and game settings, and can always be reverted.
 - **Diagnostics report:** system, GPU, settings, frame stats and logs in one file.

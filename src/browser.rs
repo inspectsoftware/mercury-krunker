@@ -12,6 +12,9 @@ pub const HOME: &str = "https://krunker.io/";
 
 static OPEN_BROWSERS: AtomicUsize = AtomicUsize::new(0);
 static RESTART: AtomicBool = AtomicBool::new(false);
+static RESTART_SAFE: AtomicBool = AtomicBool::new(false);
+/// The previous run never reached a clean shutdown (crash, killed, power loss).
+static UNCLEAN_EXIT: AtomicBool = AtomicBool::new(false);
 
 thread_local! {
     // UI thread only.
@@ -33,16 +36,33 @@ pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
         ..Default::default()
     };
     if initialize(Some(args.as_main_args()), Some(&settings), Some(app), sandbox_info) != 1 {
-        return 1;
+        return 1; // also a second launch that handed off to the running instance
+    }
+    // A marker that only a clean shutdown removes: still there at the next start means the last run crashed.
+    let marker = paths::data_dir().map(|d| d.join("running"));
+    if let Some(marker) = &marker {
+        if marker.exists() {
+            UNCLEAN_EXIT.store(true, Ordering::Relaxed);
+            crate::log::line("the previous run did not close cleanly");
+        }
+        let _ = fs::create_dir_all(marker.parent().unwrap_or(marker));
+        let _ = fs::write(marker, "");
     }
     run_message_loop();
     shutdown();
+    if let Some(marker) = &marker {
+        let _ = fs::remove_file(marker);
+    }
 
     // Relaunch only after shutdown: until then the profile is locked and a new instance would hand off to us.
     if RESTART.load(Ordering::Relaxed)
         && let Ok(exe) = std::env::current_exe()
     {
-        let _ = std::process::Command::new(exe).args(std::env::args_os().skip(1)).spawn();
+        let mut args: Vec<std::ffi::OsString> = std::env::args_os().skip(1).filter(|a| a != "--safe-mode").collect();
+        if RESTART_SAFE.load(Ordering::Relaxed) {
+            args.push("--safe-mode".into());
+        }
+        let _ = std::process::Command::new(exe).args(args).spawn();
     }
     0
 }
@@ -56,8 +76,10 @@ pub fn with_main_window<R>(f: impl FnOnce(&Window) -> R) -> Option<R> {
     MAIN_WINDOW.with(|w| w.borrow().as_ref().map(f))
 }
 
-pub fn restart() {
+/// Closes Mercury and starts it again, in safe mode if asked.
+pub fn restart(safe: bool) {
     RESTART.store(true, Ordering::Relaxed);
+    RESTART_SAFE.store(safe, Ordering::Relaxed);
     with_main_window(|w| w.close());
 }
 
@@ -74,6 +96,7 @@ fn page_script() -> String {
         "token": bridge::secret(),
         "settings": settings::all(),
         "safeMode": safe,
+        "uncleanExit": UNCLEAN_EXIT.load(Ordering::Relaxed),
     });
     format!("window.__MERCURY__ = {prelude};\n{bundle}")
 }
@@ -128,6 +151,10 @@ wrap_client! {
             Some(MercuryRequests::new())
         }
 
+        fn jsdialog_handler(&self) -> Option<JsdialogHandler> {
+            Some(MercuryDialogs::new())
+        }
+
         fn on_process_message_received(
             &self,
             browser: Option<&mut Browser>,
@@ -136,6 +163,26 @@ wrap_client! {
             message: Option<&mut ProcessMessage>,
         ) -> i32 {
             bridge::on_process_message_received(browser.cloned(), frame.cloned(), source_process, message.cloned()) as i32
+        }
+    }
+}
+
+wrap_jsdialog_handler! {
+    struct MercuryDialogs {}
+
+    impl JsdialogHandler {
+        // Krunker asks "Leave site?" on unload. Closing the game client or reloading it is deliberate: no prompt.
+        fn on_before_unload_dialog(
+            &self,
+            _browser: Option<&mut Browser>,
+            _message_text: Option<&CefString>,
+            _is_reload: i32,
+            callback: Option<&mut JsdialogCallback>,
+        ) -> i32 {
+            if let Some(callback) = callback {
+                callback.cont(1, None);
+            }
+            1
         }
     }
 }
