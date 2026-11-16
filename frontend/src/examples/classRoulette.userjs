@@ -1,0 +1,36 @@
+// ==UserScript==
+// @name Class Roulette
+// @author Mercury Client
+// @version 1.0
+// @desc In the menu, press the roulette key (F9 by default) to switch to a random class. An example userscript.
+// ==/UserScript==
+"use strict";
+
+this.settings = {
+  key: { title: "Roulette key", type: "keybind", value: { key: "F9" } },
+};
+
+const pick = () => {
+  if (document.pointerLockElement) return; // menu only, never mid-fight
+  if (window.windows?.[2]) window.windows[2].tabIndex = 0;
+  window.showWindow?.(3);
+  setTimeout(() => {
+    const classes = [...document.querySelectorAll("#windowHolder [onclick^='selectClass(']")];
+    if (!classes.length) return this._console.warn("[Class Roulette] Krunker's class list was not found");
+    classes[Math.floor(Math.random() * classes.length)].click();
+    window.closWind?.();
+  }, 300);
+};
+
+const matches = (e, bind) =>
+  e.key.toLowerCase() === String(bind.key).toLowerCase() && !!bind.ctrl === e.ctrlKey && !!bind.alt === e.altKey && !!bind.shift === e.shiftKey;
+
+const onKey = (e) => {
+  if (/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName) || !matches(e, this.settings.key.value)) return;
+  e.preventDefault();
+  pick();
+};
+
+window.addEventListener("keydown", onKey);
+this.unload = () => window.removeEventListener("keydown", onKey);
+return this;

@@ -30,6 +30,7 @@ import rankedAlert from "./rankedAlert.js";
 import rankedRating from "./rankedRating.js";
 import accounts from "./accounts.js";
 import market from "./market.js";
+import userscripts from "./userscripts.js";
 
 export default [
   general, engine, aimFreezeFix, rawInput, blocklist,
@@ -39,4 +40,5 @@ export default [
   clanColors, discordRpc, nowPlaying, mods, battlePass, rankStats,
   matchmaker, realPing, rankedQueue, rankedAlert, rankedRating,
   accounts, market,
+  userscripts,
 ];

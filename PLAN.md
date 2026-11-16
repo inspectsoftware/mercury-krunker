@@ -185,7 +185,17 @@ Still to verify with a login: Krunker's ranked queue button and the ranked ratin
 - **OBS capture plugin:** a shared texture from the GPU process, plus game-only audio.
 - Streamer mode (hide names, links, chat).
 
-### M10: userscripts
+### M10: userscripts ✅ (2026-11-16)
+
+- **Built:**
+  - Crankshaft format: `this` with `_console`, `_css`, `settings`, `unload`; `@run-at`, `@priority`.
+  - idkr format: `module.exports`, `locations`, `settings` with `set(value, init)`, `run(config)`.
+  - Script settings appear under the Userscripts folder of the Mercury tab.
+  - A manager window to toggle, add by dropping files, and delete.
+  - Every script starts off; `document-start` scripts run from a localStorage copy before Krunker's scripts.
+  - Example: Class Roulette.
+- **Not shipped: the "Quick Sell by Rarity" example.** It needs a logged-in inventory to build against, and it
+  would automate selling.
 
 - Crankshaft and idkr formats, with an in-client manager. Off by default; cosmetic only. Example scripts.
 

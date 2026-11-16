@@ -4,7 +4,7 @@
   "type": "module",
   "description": "The script Mercury Client runs in krunker.io",
   "scripts": {
-    "build": "esbuild src/main.js --bundle --format=iife --target=chrome150 --loader:.css=text --outfile=../target/frontend.js",
+    "build": "esbuild src/main.js --bundle --format=iife --target=chrome150 --loader:.css=text --loader:.userjs=text --outfile=../target/frontend.js",
     "test": "node --test \"test/*.test.js\""
   },
   "dependencies": {
