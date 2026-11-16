@@ -56,7 +56,15 @@ wants. Windows first.
 - **Engine settings:** uncapped FPS, graphics backend (ANGLE: D3D11, D3D11on12, OpenGL, Vulkan), color profile,
   custom Chromium flags.
 
-### M2: engine and performance
+### M2: engine and performance ✅ (merged 2026-11-16)
+
+- **The exe is `MercuryClient.exe`:** NVIDIA's driver database gives a bare `mercury.exe` the profile of another game
+  (Gotham Knights), so Mercury had that game's driver settings and couldn't get its own profile.
+- **Feature switches:** Mercury's `--enable-features` and `--disable-features` extend CEF's own lists instead of
+  replacing them. Replacing CEF's disable list crashed it at startup.
+- **Session restore:** Chromium's saved sessions are cleared before start, so a crash never reopens the game in a
+  window without Mercury.
+- **The present hook costs nothing:** on a fixed WebGL page, auto 759–776 FPS against off 696–769, p99 1.6 ms both.
 
 - **URL blocklist:** about 50 entries (ads, trackers, third-party scripts), editable. It runs on the IO thread, and
   resource swaps win over it.
@@ -199,7 +207,7 @@ Still to verify with a login: Krunker's ranked queue button and the ranked ratin
 - **Market:** overview, discovery with budget and activity filters, a local watchlist with price targets,
   inventory coverage, side-by-side trade comparisons (krapio, local data only).
 
-### M9: streaming
+### M9: streaming ✅ (merged 2026-11-16; live rendering inside the OBS app still to verify)
 
 - **OBS capture plugin:** a shared texture from the GPU process, plus game-only audio.
 - Streamer mode (hide names, links, chat).
