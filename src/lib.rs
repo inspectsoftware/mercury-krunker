@@ -42,6 +42,12 @@ unsafe extern "C" fn RunWinMain(
 }
 
 /// Engine switches, set on the browser process; Chromium hands them on to the GPU and renderer processes.
+///
+/// Measured and not added (2026-11-16, RTX 4060 laptop, rAF over CDP on a fixed WebGL scene, two rounds): each of
+/// --enable-zero-copy, --enable-gpu-rasterization, --disable-low-res-tiling and --num-raster-threads=4 stayed within
+/// ±5% of the baseline (720-790 FPS, p99 1.7-2.7 ms); --ignore-gpu-blocklist too, and it is less safe. A
+/// --disable-features switch added here (custom flags included) crashes CEF 156 at startup, unlike the same switch on
+/// the real command line.
 fn engine_switches() -> Vec<(String, Option<String>)> {
     let mut switches: Vec<(String, Option<String>)> = [
         // Keep full speed when the window is covered (overlays, OBS) or unfocused.
