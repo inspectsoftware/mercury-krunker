@@ -135,7 +135,12 @@ maps load can be replaced with the swapper.
   game code.
 - **Mercury icons:** counter, ammo, hitmarker, reticle and scope, each optional.
 
-### M6: chat and social
+### M6: chat and social ✅ (merged 2026-11-16)
+
+- **Hardpoint enemy counter: not built.** The HUD shows only your own objective score and the team scores, never
+  how many enemies are on the point.
+- **Discord:** needs the owner's Discord application ID (Social → Discord application ID).
+- **Still to verify with a login:** battle pass, rank panel, end-message switching.
 
 - Better chat.
 - **Chat logs:** the last 2000 lines kept across lobbies; filter, search, copy (F1).

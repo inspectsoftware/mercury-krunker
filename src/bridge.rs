@@ -116,6 +116,9 @@ impl BrowserSideHandler for Bridge {
 fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
     Some(match cmd.split_once('.')?.0 {
         "files" => crate::files::command(cmd, request),
+        "discord" => crate::discord::command(cmd, request),
+        "media" => crate::media::command(cmd, request),
+        "mods" => crate::mods::command(cmd, request),
         _ => return None,
     })
 }
@@ -151,7 +154,7 @@ fn command(cmd: &str, request: &Value) -> Result<Value, String> {
     }
 }
 
-fn downloads_dir() -> Option<std::path::PathBuf> {
+pub(crate) fn downloads_dir() -> Option<std::path::PathBuf> {
     use std::os::windows::ffi::OsStringExt;
     use windows_sys::Win32::{
         System::Com::CoTaskMemFree,

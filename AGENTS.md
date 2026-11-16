@@ -26,6 +26,7 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/bridge.rs` | `cefQuery` router: page → host commands. Secret-checked, main frame only. `route()` sends `area.*` to `src/<area>.rs` |
 | `src/files.rs` | `files.*`: read/write in `<data>/{swap,css,scripts,sounds,images}` only |
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
+| `src/discord.rs`, `src/media.rs`, `src/mods.rs` | `discord.*` (Rich Presence over Discord's IPC pipe), `media.current` (WinRT media session), `mods.download` and `game_link` (krunker.io game links open in the main window, `browser.rs` on_before_popup) |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
