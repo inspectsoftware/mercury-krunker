@@ -75,7 +75,7 @@ struct Bridge;
 impl BrowserSideHandler for Bridge {
     fn on_query_str(
         &self,
-        _browser: Option<Browser>,
+        browser: Option<Browser>,
         frame: Option<Frame>,
         _query_id: i64,
         request: &str,
@@ -95,6 +95,8 @@ impl BrowserSideHandler for Bridge {
             // These touch the window or the shell: run them here on the UI thread.
             "window.fullscreen" => reply(&callback, fullscreen(&request)),
             "shell.open" => reply(&callback, open_url(&request)),
+            // DevTools methods must be called on the UI thread; this one only queues a message.
+            "perf.cpuThrottle" => reply(&callback, crate::perf::cpu_throttle(browser.as_ref(), &request)),
             "app.restart" => {
                 reply(&callback, Ok(Value::Null));
                 browser::restart();
@@ -116,6 +118,8 @@ impl BrowserSideHandler for Bridge {
 fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
     Some(match cmd.split_once('.')?.0 {
         "files" => crate::files::command(cmd, request),
+        "perf" => crate::perf::command(cmd, request),
+        "system" => crate::system::command(cmd, request),
         _ => return None,
     })
 }

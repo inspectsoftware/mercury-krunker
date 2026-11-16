@@ -6,10 +6,15 @@
 mod bridge;
 mod browser;
 mod files;
+mod gpu_hook;
+mod nvidia;
 mod paths;
+mod perf;
+mod present;
 mod renderer;
 mod resources;
 mod settings;
+mod system;
 
 use cef::*;
 
@@ -25,6 +30,8 @@ unsafe extern "C" fn RunWinMain(
     let _ = api_hash(sys::CEF_API_VERSION_LAST, 0);
     let args = args::Args::from(MainArgs { instance });
     let mut app = MercuryApp::new();
+    // The GPU process's present hook goes in now, before Chromium starts and before its sandbox locks down.
+    gpu_hook::init();
 
     // Renderer, GPU and utility processes run to completion here; the browser process gets -1.
     let code = execute_process(Some(args.as_main_args()), Some(&mut app), sandbox_info);
@@ -51,8 +58,16 @@ fn engine_switches() -> Vec<(String, Option<String>)> {
     if settings::bool("engine.uncapped", true) {
         // Stock Chromium starves WebSocket messages under held-click input when uncapped (Chromium issue
         // 415071737, the "aim freeze"); Krunker's own aim freeze fix setting (on by default in Mercury) covers it.
+        // Without GPU vsync Chromium also creates its swap chains with tearing and presents with sync interval 0 and
+        // ALLOW_TEARING (measured with the present hook), so the DXGISwapChainPresentInterval0 feature adds nothing.
         switches.push(("disable-frame-rate-limit".into(), None));
         switches.push(("disable-gpu-vsync".into(), None));
+    }
+    // Chromium's own waitable swap chain: DXGI's frame queue limited to N frames (ui/gl/swap_chain_presenter.cc).
+    let queued = settings::string("engine.waitableSwapChain");
+    if matches!(queued.as_str(), "1" | "2") {
+        let feature = format!("DXGIWaitableSwapChain:DXGIWaitableSwapChainMaxQueuedFrames/{queued}");
+        switches.push(("enable-features".into(), Some(feature)));
     }
     for (key, switch) in [("engine.angle", "use-angle"), ("engine.colorProfile", "force-color-profile")] {
         let value = settings::string(key);
@@ -62,7 +77,29 @@ fn engine_switches() -> Vec<(String, Option<String>)> {
     }
     // Custom flags come last so they win.
     switches.extend(parse_flags(&settings::string("engine.flags")));
-    switches
+    merge_features(switches)
+}
+
+/// Chromium reads only the last --enable-features and --disable-features: join every occurrence into one.
+fn merge_features(switches: Vec<(String, Option<String>)>) -> Vec<(String, Option<String>)> {
+    let mut out: Vec<(String, Option<String>)> = Vec::new();
+    for (name, value) in switches {
+        let list = name == "enable-features" || name == "disable-features";
+        match out.iter_mut().find(|(n, _)| list && *n == name) {
+            Some((_, Some(joined))) => {
+                for feature in value.iter().flat_map(|v| v.split(',')).filter(|f| !f.is_empty()) {
+                    if !joined.split(',').any(|f| f == feature) {
+                        if !joined.is_empty() {
+                            joined.push(',');
+                        }
+                        joined.push_str(feature);
+                    }
+                }
+            }
+            _ => out.push((name, value)),
+        }
+    }
+    out
 }
 
 /// "--name --other=value" → [("name", None), ("other", Some("value"))].
@@ -85,6 +122,15 @@ mod tests {
         let parsed = super::parse_flags("  --a   b=1 --use-angle=d3d11on12 -- --=x --c=  ");
         let expect = [("a", None), ("b", Some("1")), ("use-angle", Some("d3d11on12")), ("c", Some(""))];
         assert_eq!(parsed, expect.map(|(n, v)| (n.to_string(), v.map(String::from))));
+    }
+
+    #[test]
+    fn merge_features_joins_lists_once() {
+        let merged = super::merge_features(super::parse_flags(
+            "--disable-features=A --x --enable-features=B --disable-features=C,A --disable-features=,D",
+        ));
+        let expect = [("disable-features", Some("A,C,D")), ("x", None), ("enable-features", Some("B"))];
+        assert_eq!(merged, expect.map(|(n, v)| (n.to_string(), v.map(String::from))));
     }
 }
 

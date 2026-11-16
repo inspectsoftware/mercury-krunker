@@ -20,6 +20,9 @@ thread_local! {
 
 pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
     settings::load();
+    let safe = std::env::args().any(|a| a == "--safe-mode");
+    // Before initialize: Chromium may launch the GPU process during it.
+    crate::perf::create_shared(safe);
     let profile = paths::profile_dir()
         .map(|p| p.to_string_lossy().into_owned())
         .unwrap_or_default();
@@ -34,8 +37,11 @@ pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
     if initialize(Some(args.as_main_args()), Some(&settings), Some(app), sandbox_info) != 1 {
         return 1;
     }
+    // Only now: a second launch hands off to the running instance inside initialize and returns above.
+    crate::perf::start(safe);
     run_message_loop();
     shutdown();
+    crate::perf::stop();
 
     // Relaunch only after shutdown: until then the profile is locked and a new instance would hand off to us.
     if RESTART.load(Ordering::Relaxed)
@@ -98,6 +104,13 @@ wrap_browser_process_handler! {
             );
             let mut window = MercuryWindow::new(RefCell::new(browser_view), true);
             window_create_top_level(Some(&mut window));
+        }
+
+        // Chromium only forwards an allowlist of the browser's switches: the GPU process gets the hook's here.
+        fn on_before_child_process_launch(&self, command_line: Option<&mut CommandLine>) {
+            if let Some(command_line) = command_line {
+                crate::perf::on_child_launch(command_line);
+            }
         }
 
         // A second launch hands off to this instance (the profile is locked): bring our window up instead.
