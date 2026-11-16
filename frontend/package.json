@@ -5,7 +5,7 @@
   "description": "The script Mercury Client runs in krunker.io",
   "scripts": {
     "build": "esbuild src/main.js --bundle --format=iife --target=chrome150 --loader:.css=text --outfile=../target/frontend.js",
-    "test": "node --test test/"
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "krapio": "^0.1.6"

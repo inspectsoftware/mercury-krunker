@@ -4,5 +4,10 @@ import engine from "./engine.js";
 import aimFreezeFix from "./aimFreezeFix.js";
 import rawInput from "./rawInput.js";
 import blocklist from "./blocklist.js";
+import matchmaker from "./matchmaker.js";
+import realPing from "./realPing.js";
+import rankedQueue from "./rankedQueue.js";
+import rankedAlert from "./rankedAlert.js";
+import rankedRating from "./rankedRating.js";
 
-export default [general, engine, aimFreezeFix, rawInput, blocklist];
+export default [general, engine, aimFreezeFix, rawInput, blocklist, matchmaker, realPing, rankedQueue, rankedAlert, rankedRating];

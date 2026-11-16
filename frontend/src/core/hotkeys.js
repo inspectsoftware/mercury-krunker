@@ -17,6 +17,11 @@ export function comboOf(event) {
  */
 export function hotkey({ id, label, key, handler, when = "any", category, desc }) {
   settings.define({ id, label, type: "key", default: key, category, desc });
+  onKey(id, handler, when);
+}
+
+/** Runs `handler` for a key setting a module declares in its own settings (type "key"), so it sits with the module. */
+export function onKey(id, handler, when = "any") {
   hotkeys.push({ id, handler, when });
 }
 
