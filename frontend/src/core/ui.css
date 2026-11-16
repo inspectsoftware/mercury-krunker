@@ -1,0 +1,66 @@
+.mc-overlay {
+  position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center;
+  background: rgba(5, 7, 10, 0.6); font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #e7e9ec;
+}
+.mc-overlay * { box-sizing: border-box; }
+/* Krunker sets its GameFont on every element; Mercury's own windows read better in the system font. */
+.mc-overlay, .mc-overlay *, .mc-toast, .mc-version { font-family: "Segoe UI", system-ui, sans-serif !important; }
+.mc-window {
+  width: min(980px, 94vw); height: min(700px, 90vh); display: grid; grid-template-columns: 210px 1fr; grid-template-rows: 58px 1fr;
+  background: #14161a; border: 1px solid #2a2e36; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+}
+.mc-head { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; padding: 0 14px 0 18px; border-bottom: 1px solid #2a2e36; }
+.mc-title { font-weight: 700; font-size: 16px; letter-spacing: 0.03em; white-space: nowrap; }
+.mc-title b { color: #9ad7ff; }
+.mc-title small { color: #6f7783; font-weight: 400; margin-left: 6px; }
+.mc-search {
+  flex: 1; max-width: 380px; margin-left: auto; padding: 8px 11px; font: inherit; color: inherit;
+  background: #0e1013; border: 1px solid #2a2e36; border-radius: 8px; outline: none;
+}
+.mc-search:focus { border-color: #4b8fbf; }
+.mc-x { width: 34px; height: 34px; border: 0; border-radius: 8px; background: none; color: #9aa1ac; font-size: 20px; cursor: pointer; }
+.mc-x:hover { background: #22262d; color: #fff; }
+.mc-nav { border-right: 1px solid #2a2e36; padding: 10px 8px; overflow-y: auto; }
+.mc-nav button {
+  display: block; width: 100%; padding: 8px 11px; margin-bottom: 2px; text-align: left; font: inherit; color: #a9b0ba;
+  background: none; border: 0; border-radius: 7px; cursor: pointer;
+}
+.mc-nav button:hover { background: #1b1e24; color: #e7e9ec; }
+.mc-nav button.on { background: #232831; color: #fff; }
+.mc-body { overflow-y: auto; padding: 6px 22px 24px; }
+.mc-body h3 { margin: 18px 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6f7783; }
+.mc-row { display: flex; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid #1d2026; }
+.mc-row.sub { padding-left: 20px; }
+.mc-row.off { opacity: 0.45; }
+.mc-label { flex: 1; min-width: 0; }
+.mc-name { color: #eceef1; }
+.mc-row.module > .mc-label .mc-name { font-weight: 600; }
+.mc-desc { color: #858c97; font-size: 12.5px; margin-top: 2px; }
+.mc-tag { display: inline-block; margin-left: 8px; padding: 0 6px; font-size: 11px; border-radius: 4px; background: #2b2f37; color: #b9c0ca; vertical-align: 1px; }
+.mc-switch { position: relative; width: 42px; height: 24px; flex: none; border-radius: 12px; background: #333842; border: 0; cursor: pointer; transition: background 0.15s; }
+.mc-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #c9ced6; transition: transform 0.15s; }
+.mc-switch.on { background: #2f86c2; }
+.mc-switch.on::after { transform: translateX(18px); background: #fff; }
+.mc-input, .mc-select {
+  min-width: 170px; padding: 7px 10px; font: inherit; color: inherit; background: #0e1013; border: 1px solid #2a2e36; border-radius: 7px; outline: none;
+}
+.mc-input:focus, .mc-select:focus { border-color: #4b8fbf; }
+.mc-input.wide { min-width: 320px; }
+.mc-range { display: flex; align-items: center; gap: 10px; }
+.mc-range input { width: 160px; accent-color: #2f86c2; }
+.mc-range output { min-width: 46px; text-align: right; color: #c9ced6; font-variant-numeric: tabular-nums; }
+.mc-btn {
+  padding: 7px 14px; font: inherit; color: #e7e9ec; background: #252a32; border: 1px solid #343a44; border-radius: 7px; cursor: pointer; white-space: nowrap;
+}
+.mc-btn:hover { background: #2d333c; }
+.mc-btn.primary { background: #2f86c2; border-color: #2f86c2; color: #fff; }
+.mc-key { min-width: 110px; text-align: center; font-variant-numeric: tabular-nums; }
+.mc-key.listening { border-color: #4b8fbf; color: #9ad7ff; }
+.mc-empty { color: #6f7783; padding: 40px 0; text-align: center; }
+.mc-toasts { position: fixed; right: 18px; bottom: 18px; z-index: 2147483001; display: grid; gap: 8px; pointer-events: none; }
+.mc-toast {
+  max-width: 380px; padding: 10px 14px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: #e7e9ec;
+  background: #1c1f25; border: 1px solid #2f343d; border-radius: 9px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.mc-version { position: absolute; left: 12px; bottom: 8px; z-index: 5; font: 11px "Segoe UI", sans-serif; color: rgba(255, 255, 255, 0.4); pointer-events: none; }
+.mc-menu-btn { cursor: pointer; }

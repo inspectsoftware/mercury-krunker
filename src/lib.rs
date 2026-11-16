@@ -1,30 +1,18 @@
-//! Mercury: a Krunker client on CEF. See PLAN.md.
+//! Mercury Client: a Krunker client on CEF. See PLAN.md.
+//!
+//! `mercury.exe` is CEF's sandbox bootstrap; it loads this DLL and calls `RunWinMain` in every process:
+//! the browser process (window, bridge, settings), renderers (page injection) and the GPU and utility processes.
+
+mod bridge;
+mod browser;
+mod paths;
+mod renderer;
+mod settings;
 
 use cef::*;
-use std::{
-    cell::RefCell,
-    sync::atomic::{AtomicUsize, Ordering},
-};
 
-const URL: &str = "https://krunker.io/";
-const INJECT: &str = include_str!("inject.js");
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-/// Set on the browser process, which hands them on to the GPU and renderer processes.
-const SWITCHES: &[&str] = &[
-    // Uncapped. On stock Chromium this triggers the aim freeze (Chromium issue 415071737); M2 patches it.
-    "disable-frame-rate-limit",
-    "disable-gpu-vsync",
-    // Keep full speed when the window is covered (overlays, OBS) or unfocused.
-    "disable-background-timer-throttling",
-    "disable-renderer-backgrounding",
-    "disable-backgrounding-occluded-windows",
-    // Hybrid laptops: render on the discrete GPU.
-    "force-high-performance-gpu",
-];
-
-static OPEN_BROWSERS: AtomicUsize = AtomicUsize::new(0);
-
-/// Entry point for every process; `bootstrap.exe` (shipped as mercury.exe) calls it after setting up the sandbox.
 #[unsafe(no_mangle)]
 unsafe extern "C" fn RunWinMain(
     instance: sys::HINSTANCE,
@@ -41,27 +29,65 @@ unsafe extern "C" fn RunWinMain(
     if code >= 0 {
         return code;
     }
+    browser::run(&args, &mut app, sandbox_info)
+}
 
-    // An empty cache path makes CEF keep everything in memory, which is the right fallback.
-    let profile = std::env::var("LOCALAPPDATA")
-        .map(|base| format!(r"{base}\Mercury\profile"))
-        .unwrap_or_default();
-    let settings = Settings {
-        root_cache_path: CefString::from(profile.as_str()),
-        cache_path: CefString::from(profile.as_str()),
-        persist_session_cookies: 1,
-        ..Default::default()
-    };
-    if initialize(Some(args.as_main_args()), Some(&settings), Some(&mut app), sandbox_info) != 1 {
-        return 1;
+/// Engine switches, set on the browser process; Chromium hands them on to the GPU and renderer processes.
+fn engine_switches() -> Vec<(String, Option<String>)> {
+    let mut switches: Vec<(String, Option<String>)> = [
+        // Keep full speed when the window is covered (overlays, OBS) or unfocused.
+        "disable-background-timer-throttling",
+        "disable-renderer-backgrounding",
+        "disable-backgrounding-occluded-windows",
+        // Hybrid laptops: render on the discrete GPU.
+        "force-high-performance-gpu",
+    ]
+    .iter()
+    .map(|s| (s.to_string(), None))
+    .collect();
+
+    if settings::bool("engine.uncapped", true) {
+        // Stock Chromium starves WebSocket messages under held-click input when uncapped (Chromium issue
+        // 415071737, the "aim freeze"); Krunker's own aim freeze fix setting (on by default in Mercury) covers it.
+        switches.push(("disable-frame-rate-limit".into(), None));
+        switches.push(("disable-gpu-vsync".into(), None));
     }
-    run_message_loop();
-    shutdown();
-    0
+    for (key, switch) in [("engine.angle", "use-angle"), ("engine.colorProfile", "force-color-profile")] {
+        let value = settings::string(key);
+        if !value.is_empty() {
+            switches.push((switch.into(), Some(value)));
+        }
+    }
+    // Custom flags come last so they win.
+    switches.extend(parse_flags(&settings::string("engine.flags")));
+    switches
+}
+
+/// "--name --other=value" → [("name", None), ("other", Some("value"))].
+fn parse_flags(flags: &str) -> Vec<(String, Option<String>)> {
+    flags
+        .split_whitespace()
+        .map(|token| token.trim_start_matches('-'))
+        .filter(|token| !token.is_empty() && !token.starts_with('='))
+        .map(|token| match token.split_once('=') {
+            Some((name, value)) => (name.into(), Some(value.into())),
+            None => (token.into(), None),
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn parse_flags() {
+        let parsed = super::parse_flags("  --a   b=1 --use-angle=d3d11on12 -- --=x --c=  ");
+        let expect = [("a", None), ("b", Some("1")), ("use-angle", Some("d3d11on12")), ("c", Some(""))];
+        assert_eq!(parsed, expect.map(|(n, v)| (n.to_string(), v.map(String::from))));
+    }
 }
 
 wrap_app! {
-    struct MercuryApp {}
+    pub struct MercuryApp {}
 
     impl App {
         fn on_before_command_line_processing(
@@ -73,148 +99,24 @@ wrap_app! {
             let (true, Some(command_line)) = (is_browser, command_line) else {
                 return;
             };
-            for switch in SWITCHES {
-                command_line.append_switch(Some(&CefString::from(*switch)));
+            if browser::safe_mode(command_line) {
+                return;
+            }
+            for (name, value) in engine_switches() {
+                let name = CefString::from(name.as_str());
+                match value {
+                    Some(value) => command_line.append_switch_with_value(Some(&name), Some(&CefString::from(value.as_str()))),
+                    None => command_line.append_switch(Some(&name)),
+                }
             }
         }
 
         fn browser_process_handler(&self) -> Option<BrowserProcessHandler> {
-            Some(MercuryBrowserProcess::new())
+            Some(browser::MercuryBrowserProcess::new())
         }
 
         fn render_process_handler(&self) -> Option<RenderProcessHandler> {
-            Some(MercuryRenderer::new())
-        }
-    }
-}
-
-wrap_browser_process_handler! {
-    struct MercuryBrowserProcess {}
-
-    impl BrowserProcessHandler {
-        fn on_context_initialized(&self) {
-            let mut client = MercuryClient::new();
-            let mut delegate = MercuryBrowserView::new();
-            let browser_view = browser_view_create(
-                Some(&mut client),
-                Some(&CefString::from(URL)),
-                Some(&BrowserSettings::default()),
-                None,
-                None,
-                Some(&mut delegate),
-            );
-            let mut window = MercuryWindow::new(RefCell::new(browser_view), true);
-            window_create_top_level(Some(&mut window));
-        }
-    }
-}
-
-wrap_render_process_handler! {
-    struct MercuryRenderer {}
-
-    impl RenderProcessHandler {
-        // Runs before any page script, so inject.js sees pristine built-ins.
-        fn on_context_created(
-            &self,
-            _browser: Option<&mut Browser>,
-            _frame: Option<&mut Frame>,
-            context: Option<&mut V8Context>,
-        ) {
-            let Some(context) = context else { return };
-            let (mut value, mut exception) = (None, None);
-            context.eval(
-                Some(&CefString::from(INJECT)),
-                Some(&CefString::from("mercury://inject.js")),
-                1,
-                Some(&mut value),
-                Some(&mut exception),
-            );
-        }
-    }
-}
-
-wrap_client! {
-    struct MercuryClient {}
-
-    impl Client {
-        fn life_span_handler(&self) -> Option<LifeSpanHandler> {
-            Some(MercuryLifeSpan::new())
-        }
-    }
-}
-
-wrap_life_span_handler! {
-    struct MercuryLifeSpan {}
-
-    impl LifeSpanHandler {
-        fn on_after_created(&self, _browser: Option<&mut Browser>) {
-            OPEN_BROWSERS.fetch_add(1, Ordering::Relaxed);
-        }
-
-        fn on_before_close(&self, _browser: Option<&mut Browser>) {
-            // Popups count too: quit when the last window of any kind closes.
-            if OPEN_BROWSERS.fetch_sub(1, Ordering::Relaxed) == 1 {
-                quit_message_loop();
-            }
-        }
-    }
-}
-
-wrap_browser_view_delegate! {
-    struct MercuryBrowserView {}
-
-    impl ViewDelegate {}
-
-    impl BrowserViewDelegate {
-        // Login and social popups get their own top-level window.
-        fn on_popup_browser_view_created(
-            &self,
-            _browser_view: Option<&mut BrowserView>,
-            popup_browser_view: Option<&mut BrowserView>,
-            _is_devtools: i32,
-        ) -> i32 {
-            let mut window = MercuryWindow::new(RefCell::new(popup_browser_view.cloned()), false);
-            window_create_top_level(Some(&mut window));
-            1
-        }
-    }
-}
-
-wrap_window_delegate! {
-    struct MercuryWindow {
-        browser_view: RefCell<Option<BrowserView>>,
-        maximized: bool,
-    }
-
-    impl ViewDelegate {}
-
-    impl PanelDelegate {}
-
-    impl WindowDelegate {
-        fn on_window_created(&self, window: Option<&mut Window>) {
-            let browser_view = self.browser_view.borrow();
-            let (Some(window), Some(browser_view)) = (window, browser_view.as_ref()) else {
-                return;
-            };
-            window.add_child_view(Some(&mut View::from(browser_view)));
-            window.set_title(Some(&CefString::from("Mercury")));
-            window.show();
-            // Chrome-style windows ignore initial_show_state, so maximize explicitly.
-            if self.maximized {
-                window.maximize();
-            }
-        }
-
-        fn on_window_destroyed(&self, _window: Option<&mut Window>) {
-            self.browser_view.borrow_mut().take();
-        }
-
-        fn can_close(&self, _window: Option<&mut Window>) -> i32 {
-            let browser_view = self.browser_view.borrow();
-            match browser_view.as_ref().and_then(|v| v.browser()).and_then(|b| b.host()) {
-                Some(host) => host.try_close_browser(),
-                None => 1,
-            }
+            Some(renderer::MercuryRenderer::new())
         }
     }
 }

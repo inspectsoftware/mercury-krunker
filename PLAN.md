@@ -1,148 +1,175 @@
-# Mercury for Krunker: plan
+# Mercury Client: plan
 
-Goal: the lowest-latency, steadiest Krunker client for competitive play, streaming and pubs. Windows first.
+Goal: the lowest-latency, steadiest Krunker client, with everything a competitive player, a streamer and a pubstomper
+wants. Windows first.
 
 ## Rules
 
-- **Legit only.** Nothing that reads game state for an advantage or plays for the player: no ESP, aim help,
-  triggerbots, macros, bots, or routing through a VPN or proxy. FRVR's punishment table bans cheating, botting,
-  VPN/proxy use and account sharing permanently.
+- **Legit only.** Nothing that reads hidden game state for an advantage or plays for the player: no ESP, aim help,
+  triggerbots, macros, bots, or routing through a VPN or proxy. FRVR permanently bans cheating, botting, VPN/proxy
+  use and account sharing.
 - **Never touch Krunker's game code.** It ships encrypted. Work at the engine, network-request and DOM levels.
-- **No speed claim without a number** from `bench/`, measured on the same machine against Crankshaft 2.x and KCC.
-
-## Why this stack
-
-Research summary (2026-11-16):
-
-- Krunker is JavaScript on WebGL. An Emscripten loader (`/pkg/loader-<build>.mjs` plus a `.wasm` with Crypto++
-  and Brotli) decrypts the game and runs it with `new Function`. Every frame is V8, then Chromium's compositor,
-  then ANGLE.
-- **The aim freeze** is [Chromium issue 415071737](https://issues.chromium.org/issues/415071737). With
-  `--disable-frame-rate-limit` and the mouse held down while moving, Blink's main-thread scheduler starves the
-  WebSocket tasks that carry game state:
-  - input runs at the highest priority;
-  - the compositor is raised to highest during `kMainThreadCustomInputHandling`;
-  - `BackToBackBeginFrameSource` keeps posting zero-delay frames.
-
-  This regressed in Chromium 84 and can only be fixed inside Chromium. bigjakk's Electron-Websocket-Fix reports
-  p99 message delay falling from 97 ms to 34 ms (max 308 ms to 38 ms) with the priorities capped.
-- So: our own Chromium build, through CEF, behind a thin Rust host. Why not the alternatives:
-  - **WebView2 / Tauri** can't carry the patch.
-  - **Electron** runs its main-process JavaScript on the browser UI thread, the thread that forwards mouse input.
-  - **A native rewrite** would have to defeat the loader and imitate the protocol, which looks like botting.
+- **Our own code, ideas only.** Kute, KCC, Crankshaft, Glorp and the other clients are GPL: we take ideas, never
+  code or binaries (README → Credits). MIT libraries such as krapio may be used as dependencies, with their
+  license notice.
+- **No Chromium build.** Stock CEF only. A feature that needs a Chromium patch gets a no-build alternative or is
+  listed under "Not doing".
+- **Measure.** No speed claim without a number from the bench.
 
 ## Architecture
 
-- `mercury.exe` is CEF's sandbox `bootstrap.exe`. For every process (browser, renderer, GPU, utility) it loads
-  `mercury.dll` (this crate) and calls `RunWinMain`.
-- **Browser process:** a Views window in Chrome runtime style, with the profile in `%LOCALAPPDATA%\Mercury\profile`.
-  The switch set lives in `App::on_before_command_line_processing`.
-- **Renderer:** `on_context_created` evaluates `src/inject.js` before the page's own scripts run.
-- **IO thread (M3):** a resource request handler for the blocklist and the resource swapper. It runs off the UI
-  thread, so it never delays input.
-- **Engine:** stock CEF binaries for M0–M1, our patched CEF build from M2 on. Pinned to the `cef` crate version
-  (`156.6.0+156.0.30`) so the API hash matches. `CEF_PATH` (`.cargo/config.toml`) picks the distribution.
+- **`mercury.exe`** is CEF's sandbox `bootstrap.exe`. For every process it loads `mercury.dll` (Rust, `src/`) and
+  calls `RunWinMain`.
+- **Browser process** (`browser.rs`):
+  - a Views window, the profile in `%LOCALAPPDATA%\Mercury` (`MERCURY_DATA_DIR` overrides it);
+  - the engine switches (`lib.rs`), restart, `--safe-mode`, single instance.
+- **Page script** (`frontend/`, esbuild → `frontend.js` next to the exe):
+  - the browser hands it to renderers through `extra_info`;
+  - the renderer evaluates it in krunker.io's main frame before Krunker's scripts (`renderer.rs`);
+  - features are modules in `frontend/src/modules/`;
+  - settings are one flat map, kept in localStorage and in `settings.json`.
+- **Bridge** (`bridge.rs`): the page calls the host with `cefQuery`. Calls are only served from krunker.io's main
+  frame and only with the per-launch secret, which only the bundle holds. Disk and network work runs off the UI
+  thread.
+- **GPU process** (M2): the present hook is installed from `RunWinMain` before Chromium starts, so nothing is
+  injected.
 
 ## Milestones
 
-### M0: shell (in progress)
+### M0: shell ✅
 
-- Opens krunker.io with the sandbox on.
-- Login persists across restarts.
-- Uncapped switch set (vsync off, no background throttling, high-performance GPU).
-- Raw mouse input via `inject.js`.
-- Popups open in their own windows.
+- Sandboxed CEF 156 window on krunker.io; persistent profile; maximized; popups; clean shutdown.
 
-**Done when** a full match plays and the login survives a restart. Also test Google, Discord and Krunker logins
-in the popup.
+### M1: foundation ✅
 
-Status (2026-11-16):
+- Page bundle at document start, and the secured page↔host bridge.
+- Settings store and the Mercury settings window (F8 or the header button):
+  - search;
+  - every setting togglable;
+  - restart tags.
+- Rebindable hotkeys.
+- **Performance only:** one switch turns off every cosmetic module and hides its settings; switching back restores
+  the player's choices.
+- Settings export and import; restart; `--safe-mode`; single instance; version tag; F11 fullscreen.
+- **Aim freeze:** Krunker's own fix (`kro_setngss_aimFreezeFix`) is on by default.
+- Raw input (`unadjustedMovement`).
+- **Engine settings:** uncapped FPS, graphics backend (ANGLE: D3D11, D3D11on12, OpenGL, Vulkan), color profile,
+  custom Chromium flags.
 
-- **Verified over CDP:** krunker.io loads in the sandboxed shell and joins a lobby. WebGL runs on the RTX 4060
-  (ANGLE D3D11). The menu runs at 384 FPS on a 144 Hz panel. The raw-input override is in place, and closing the
-  window shuts down every process.
-- **Not yet tested:** logins and a full match.
-- **Noted for M3:** the menu loads 19 ad/social iframes (doubleclick, googlesyndication, creativecdn, adform,
-  Twitter), each in its own renderer process.
+### M2: engine and performance
 
-### M1: measure (`bench/`)
+- **URL blocklist:** about 50 entries (ads, trackers, third-party scripts), editable. It runs on the IO thread, and
+  resource swaps win over it.
+- **DXGI present hook** in the GPU process:
+  - waitable flip swapchain;
+  - frame limiter;
+  - present FPS counter in the page.
+- **Hybrid laptops:** detected. The fast GPU is set once in Windows' graphics settings, and the hook stays off on
+  laptops where the display is wired to the integrated GPU.
+- **Laptop Power Boost:** Windows' Best performance mode while Mercury runs on AC power, then restored.
+- **NVIDIA driver profile** for mercury.exe (driver frame caps lifted).
+- **HighQoS** (no EcoQoS) for the game's renderer and GPU processes.
+- **Fix audio stutters**, without a patch:
+  - keep Krunker's Howler context from auto-suspending, which stops automation events from piling up;
+  - throttle panner position writes.
+- **CPU throttler**, as a last resort for GPU-bound PCs.
+- **Game FPS limit** fallback when the hook is off.
+- **Performance tweaks:** a curated flag set, a Krunker game settings preset, system checks (power plan, Game
+  Mode, HAGS).
 
-1. **Held-click WebSocket delay.** A local WebSocket server sends timestamps at 128 Hz to a test page that renders
-   WebGL uncapped. CDP drives held-click mouse movement. Report p50, p99, max, and the share of messages over 50 ms.
-2. **Frame times** with PresentMon.
-3. **Click-to-photon**, manually: a photodiode or a Reflex analyzer. Write down the protocol.
+### M3: auto-detect, diagnostics, safety
 
-Baselines: stock CEF uncapped, stock CEF with vsync, Crankshaft 2.x, KCC.
+- A bench scene (WebGL), plus the held-click WebSocket delay test from the research.
+- **Auto-Detect Best Settings:** benchmarks the PC, picks engine and game settings, and can always be reverted.
+- **Diagnostics report:** system, GPU, settings, frame stats and logs in one file.
+- **Safe mode and crash finder:** bisects modules and flags to find the one that breaks the client.
 
-**Done when** the numbers are committed in `bench/results/`.
+### M4: input and HUD
 
-### M2: patched engine (`patches/`)
+- **Keystrokes:** bound movement keys and mouse, lit while pressed, plus a ring showing mouse direction.
+- **HUD editor:** drag, resize and hide every in-game HUD element and the menu timer, with snapping.
+- Menu timer.
 
-Build CEF 156 from source with:
+### M5: look
 
-1. **Scheduler:** cap input and compositor priority at normal. Write our own patch: Electron-Websocket-Fix shows no
-   license, and KCC is GPL-3.0.
-2. **Pacing:** keep draw throttling under `--disable-frame-rate-limit`, allow at most one pending frame, and add an
-   exact frame cap (deadline sleep, then spin).
+- **Resource swapper with a manager:**
+  - shows which game files the swaps replace;
+  - drag and drop, and a built-in editor;
+  - CSS swaps apply instantly.
+- **CSS manager:** several CSS files (write, paste, import), switch between them, syntax-highlighted editor with
+  live preview, always on top of Krunker's styles.
+- **Mercury CSS:** an optional look for the whole client (menus, settings, windows, popups, social, HUD).
+- **Classic menu:** the Season 9 layout with every Season 10 button.
+- **Cleaner menu:** hides the store ad, live streams, featured maps, Popular Now and other promos.
+- **Motion blur:** a slight blur on the game canvas while turning; the HUD stays sharp.
+- **Custom sky:** a preset, your own gradient or image. Only if it works through a swap or CSS, without touching
+  game code.
+- **Mercury icons:** counter, ammo, hitmarker, reticle and scope, each optional.
 
-This needs a build box. This laptop (16 GB RAM, 114 GB free) is too small: plan a VM with 32+ vCPUs, 64 GB RAM and a
-250 GB SSD, or a self-hosted runner. The output is a CEF binary distribution zip in a private release, and
-`CEF_PATH` points at it.
+### M6: chat and social
 
-**Done when** held-click p99 is at or below KCC's and the max stays under 50 ms.
+- Better chat.
+- **Chat logs:** the last 2000 lines kept across lobbies; filter, search, copy (F1).
+- Clan colors (a local list).
+- **Match end message per account:** an alt never sends the main's message.
+- **Discord Rich Presence**, from Krunker's own `getGameActivity`.
+- **Now-playing overlay** (Spotify and others) through Windows' media session.
+- **Mods:**
+  - a download button on every mod;
+  - mod, lobby and invite links open in the game window.
+- Battle pass claim-all.
+- **Rank progress** and **nuke counter** (career total, optional goal), through the APIs.
+- **Hardpoint enemy counter:** only from what the HUD already shows; dropped if it would need hidden state.
 
-### M3: input and display path
+### M7: matchmaking and ranked
 
-Each change lands only with a bench win.
+- **Matchmaker:** F6 joins the lowest-ping lobby that fits the filters (region, mode, map, players, time left).
+- **Real ping:**
+  - to every region;
+  - in Find Game, regions sorted fastest first.
+- **External ranked queue:** queue without the game open; a match-found sound that can be swapped and has its own
+  volume.
+- **Ranked match alert:** the window comes to the front or flashes when a match is found while tabbed out.
+- Ranked rating (ELO/MMR) display.
 
-- **Raw input:** make `unadjustedMovement` the pointer-lock default inside Chromium and drop the JS override, which
-  the page can see.
-- **Present path:** DComp swap chain with `ALLOW_TEARING`, a frame-latency waitable, `SetMaximumFrameLatency(1)`,
-  and MMCSS "Games" on the GPU main thread.
-- **Process tuning:** renderer and GPU priority, opt-out of power throttling (EcoQoS), timer resolution.
-- **ANGLE backend switch:** `d3d11` by default; benchmark `d3d11on12`, `vulkan` and `gl` per GPU.
-- **Blocklist:** ads, trackers and third-party scripts (krunker.io loads gtag, Twitter widgets, Google
-  `platform.js` and `web3@latest` from unpkg). Measure the main-thread time saved and check what each blocked
-  script breaks.
+### M8: accounts and market
 
-**Done when** PresentMon latency and click-to-photon beat Crankshaft 2.x and KCC.
+- **Encrypted account manager:** Windows DPAPI; drag to order; Ctrl+Alt+1/2/3 log in the first three
+  (rebindable).
+- **Market:** overview, discovery with budget and activity filters, a local watchlist with price targets,
+  inventory coverage, side-by-side trade comparisons (krapio, local data only).
 
-### M4: streaming
+### M9: streaming
 
-- **Capture:** while a reader is attached, the GPU process copies the back buffer into a named NT-handle shared
-  texture. An OBS source plugin reads it, with no CPU readback.
-- **Streamer mode:** hide names, lobby links and chat, in CSS.
-- **Keystrokes overlay.**
-- **Audio:** OBS Application Audio Capture (no code), or process loopback as in Glassview.
+- **OBS capture plugin:** a shared texture from the GPU process, plus game-only audio.
+- Streamer mode (hide names, links, chat).
 
-**Done when** OBS records 1080p60 from the shared texture while the game runs uncapped, with the frame-time cost
-measured.
+### M10: userscripts
 
-### M5: pubs
+- Crankshaft and idkr formats, with an in-client manager. Off by default; cosmetic only. Example scripts.
 
-- **Matchmaker:** filters for region, mode, map, player count and time left; lobby scan; auto-join with a capacity
-  check; requeue hotkey. Poll gently so it never looks like botting.
-- **Ping:** numeric ping display, and the region picked by measured ping.
+### M11: ship
 
-### M6: ship
+- Auto-updater with a download progress window and changelogs.
+- Inno Setup installer; crash log.
 
-- **In-page settings:** a Mercury settings tab, a resource swapper folder, and a userscripts folder that is off by
-  default and limited to cosmetic scripts.
-- **Release:** Inno Setup installer, code signing, and auto-update from GitHub releases.
-- **Upkeep:** a watch for Krunker updates that break our hooks.
+### Not doing (for now)
+
+- **Chromium patches** (no Chromium build, by decision). Each item, and what replaces it:
+  - input priority: Krunker's aim freeze fix replaces it;
+  - compositor frame pacing and FPS limiter: the present hook limiter replaces them;
+  - Web Audio panner and AudioParam patches: the JS audio fix replaces them;
+  - canvas buffer cache: nothing replaces it;
+  - ThinLTO: nothing replaces it.
+- **Medal.tv** official support: a partnership, not code.
+- **Online features that need a server:** a Mercury badge, shared clan colors.
+- **Code signing:** later.
+- **Linux:** later.
 
 ## Risks
 
-- **Upstream fix:** Chromium may fix 415071737, and every client gets the fix. Our edge then lives in pacing, the
-  present path and capture.
-- **CEF bumps:** each one means rebasing `patches/`. Stay on one CEF branch for months and bump for security fixes.
-- **Krunker UI changes** break DOM hooks; Season 10 broke other clients' menu timers. Keep hooks few, CSS first.
-- **Anti-tamper:** the loader reads mouse movement, and JS overrides are visible to it. Prefer engine-level changes.
-- **Google sign-in** may refuse embedded browsers. Test it in M0.
-- **Build cost:** each Chromium build means hardware and hours.
-
-## Open decisions (owner)
-
-- The M2 build box: a cloud VM or a self-hosted runner.
-- The product name. Keep "Krunker" out of it.
-- A code-signing certificate.
+- **Krunker updates** break DOM hooks (Season 10 broke other clients' menu timers). Keep hooks few, CSS first, and
+  let modules fail alone.
+- **Unofficial APIs** (game and token tiers) can change any time.
+- **The aim freeze** depends on Krunker keeping its own fix setting.
+- **Anti-tamper:** the loader reads mouse movement. Keep page overrides minimal.

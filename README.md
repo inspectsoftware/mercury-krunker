@@ -1,19 +1,50 @@
-# Mercury for Krunker
+# Mercury Client
 
-A Krunker client built for competitive play, streaming and pubs: a patched Chromium (through CEF) behind a thin
-Rust host. Private for now. The plan and the reasons behind it are in [PLAN.md](PLAN.md).
+A Krunker client built for competitive play, streaming and pubs: Chromium (CEF) behind a thin Rust host, with a
+page script for everything that lives in the game's page. Private for now. What is planned and why is in
+[PLAN.md](PLAN.md).
 
 ## Build and run (Windows)
 
-You need Rust stable and Visual Studio 2022 Build Tools with the C++ workload, which includes CMake and Ninja.
+You need:
+- Rust stable;
+- Node.js;
+- Visual Studio 2022 Build Tools with the C++ workload (it includes CMake and Ninja).
+
 From a **Developer PowerShell for VS 2022**:
 
 ```powershell
-cargo xtask bundle            # add --release for an optimized build
+cargo xtask bundle            # builds frontend/ and mercury.dll; add --release for an optimized build
 target\bundle\mercury.exe
 ```
 
-The first build downloads CEF 156 into `.cef/`. Extra Chromium switches can go on the command line, for example
-`mercury.exe --use-angle=d3d11on12`.
+The first build downloads CEF 156 into `.cef/` and the page script's packages into `frontend/node_modules`.
 
-The profile (login, cookies, cache) lives in `%LOCALAPPDATA%\Mercury\profile`.
+- **Data:** settings, profile and swaps live in `%LOCALAPPDATA%\Mercury`. `MERCURY_DATA_DIR` points elsewhere (test
+  runs, portable use).
+- **Safe mode:** `mercury.exe --safe-mode` starts without the page script and custom flags.
+- **Settings window:** F8 in the game.
+
+## Credits
+
+Mercury's code is its own. These projects gave us ideas, or are used as libraries:
+
+- [NullDev/Kute](https://github.com/NullDev/Kute): the feature set we aim for, and the architecture idea of a Rust
+  host on CEF with a present hook in the GPU process and an OBS shared-texture capture.
+- [NullDev/krapio](https://github.com/NullDev/krapio) (MIT, used as a library): the Krunker API client.
+- [slavcp/glorp](https://github.com/slavcp/glorp): the DXGI present hook and shared-texture OBS capture ideas.
+- [6ct/client-pp](https://github.com/6ct/clientpp): Chromium flags.
+- [KraXen72/crankshaft](https://github.com/KraXen72/crankshaft): the menu timer and matchmaker ideas, and Krunker's
+  own aim freeze fix setting.
+- [idkr-client/idkr](https://github.com/idkr-client/idkr): tweaks.
+- [bigjakk/Electron-Websocket-Fix](https://github.com/bigjakk/Electron-Websocket-Fix): the root-cause analysis of
+  the aim freeze (Chromium issue 415071737).
+- [bigjakk/Krunker-Civilian-Client](https://github.com/bigjakk/Krunker-Civilian-Client): the matchmaker, nuke
+  counter, custom sky and keystrokes ideas.
+- [Alx8g/wok-client](https://github.com/Alx8g/wok-client): the motion blur idea.
+- PC7 Client: ideas (badges, QoL).
+- Water Client: ideas (direct mod downloads).
+- [krunkerresourcehub/krh-client](https://github.com/krunkerresourcehub/krh-client): ideas (quick alt login, safe
+  mode).
+
+Mercury Client is not affiliated with Krunker.io or FRVR.
