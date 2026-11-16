@@ -1,8 +1,16 @@
 # Mercury Client
 
 A Krunker client built for competitive play, streaming and pubs: Chromium (CEF) behind a thin Rust host, with a
-page script for everything that lives in the game's page. Private for now. What is planned and why is in
-[PLAN.md](PLAN.md).
+page script for everything that lives in the game's page. What is planned and why is in [PLAN.md](PLAN.md). How
+each feature stands against Krunker's rules is in [docs/rules.md](docs/rules.md).
+
+## Get it
+
+- **Install:** download `MercuryClient-Setup-<version>.exe` from [Releases](../../releases/latest) and run it. It
+  installs for your user only (no admin rights) and updates itself.
+- **Settings:** in Krunker's own settings window, last tab "Mercury". F8 opens it from anywhere.
+- **Safety:** Mercury reads no hidden game state and plays nothing for you. Use cheats, VPNs or shared accounts
+  with it and FRVR bans you anyway.
 
 ## Build and run (Windows)
 
@@ -30,9 +38,9 @@ The first build downloads CEF 156 into `.cef/` and the page script's packages in
   `target/installer/MercuryClient-Setup-<version>.exe` (Inno Setup 6, per user, no admin rights).
 - **Releasing:** raise `version` in `Cargo.toml`, commit, then push a tag `v<version>`. GitHub Actions
   (`.github/workflows/release.yml`) builds the installer and publishes the release.
-- **Updates:** clients offer the newest release, check its SHA-256 and update themselves. While the repo is private,
-  the update check can't see releases.
-- **Settings window:** F8 in the game.
+- **Release notes:** `docs/releases/v<version>.md`. The release shows them, and so does the client's "what's new"
+  window after an update.
+- **Updates:** clients offer the newest release, check its SHA-256 and update themselves.
 
 ## Credits
 

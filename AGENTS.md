@@ -82,4 +82,4 @@ npm --prefix frontend test                              # page-script unit tests
 - **Close the instance when done:** `CloseMainWindow()` on the browser process, the one without `--type=` in its
   command line. An open CDP port lets any local program drive the session.
 - **Worktrees:** point `CEF_PATH` at the main checkout's `.cef` folder to skip a 900 MB download, for example
-  `$env:CEF_PATH = "C:\Users\iso\Desktop\mercury-krunker\.cef"`.
+  `$env:CEF_PATH = "<main checkout>\.cef"`.
