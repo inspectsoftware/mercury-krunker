@@ -65,3 +65,11 @@
 }
 .mc-version { position: absolute; left: 12px; bottom: 8px; z-index: 5; font: 11px "Segoe UI", sans-serif; color: rgba(255, 255, 255, 0.4); pointer-events: none; }
 .mc-menu-btn { cursor: pointer; }
+/* The Mercury tab inside Krunker's settings window (krunkerTab.js) uses Krunker's own classes; these only add what
+   Krunker has no style for. */
+.mc-koff { opacity: 0.45; }
+.mc-ktext { width: 280px; }
+.mc-klist {
+  display: block; width: 100%; height: 150px; margin-top: 8px; resize: vertical; white-space: pre;
+  font: 12.5px/1.45 Consolas, "Cascadia Mono", monospace !important;
+}

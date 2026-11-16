@@ -112,10 +112,11 @@ function changed(def, value) {
   if (def.restart) toast("Restart the client to apply this (General → Restart client).");
   else if (def.isToggle && !registry.byId(def.module)?.live) toast("Applies on the next lobby (or press F5).");
   def.onChange?.(value);
-  render();
+  if (overlay) render();
 }
 
-function control(def) {
+/** A setting's control in Mercury's own look (also used by krunkerTab.js for types Krunker has no look for). */
+export function control(def) {
   const value = settings.get(def.id);
   switch (def.type) {
     case "bool":

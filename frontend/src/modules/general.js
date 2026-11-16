@@ -4,12 +4,12 @@
 import { h, toast, waitFor } from "../core/dom.js";
 import { call, version } from "../core/host.js";
 import { hotkey } from "../core/hotkeys.js";
+import * as krunkerTab from "../core/krunkerTab.js";
 import * as settings from "../core/settings.js";
-import * as ui from "../core/ui.js";
 
 const category = "General";
 
-hotkey({ id: "general.menuKey", label: "Open Mercury settings", key: "F8", category, handler: () => ui.toggle() });
+hotkey({ id: "general.menuKey", label: "Open Mercury settings", key: "F8", category, handler: () => krunkerTab.toggle() });
 hotkey({ id: "general.fullscreenKey", label: "Fullscreen", key: "F11", category, handler: () => call("window.fullscreen") });
 
 async function exportSettings() {
@@ -46,7 +46,7 @@ async function addMenuButton() {
   const label = krunkerSettings?.querySelector("[class*='nav-label']");
   const button = h(
     "div",
-    { class: `${krunkerSettings?.className ?? ""} mc-menu-btn`, role: "button", tabindex: 0, onclick: () => ui.open() },
+    { class: `${krunkerSettings?.className ?? ""} mc-menu-btn`, role: "button", tabindex: 0, onclick: () => krunkerTab.open() },
     h("span", { class: icon?.className ?? "material-icons" }, "tune"),
     " ",
     h("span", { class: label?.className ?? "" }, "Mercury"),
@@ -76,6 +76,7 @@ export default {
     { key: "import", label: "Import settings", desc: "Loads a file made with Export. Replaces your current settings.", type: "action", button: "Import", run: importSettings },
   ],
   init() {
+    krunkerTab.install();
     addMenuButton();
     if (settings.get("general.versionTag")) waitFor("#menuHolder").then((menu) => menu.append(h("div", { class: "mc-version" }, `Mercury Client v${version}`)));
   },
