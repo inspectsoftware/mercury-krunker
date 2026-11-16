@@ -19,7 +19,11 @@ fn main() {
     assert!(!obs.is_null(), "could not load obs.dll from {obs_dir}");
     macro_rules! f {
         ($name:literal, $ty:ty) => {
-            unsafe { std::mem::transmute::<_, $ty>(GetProcAddress(obs, concat!($name, "\0").as_ptr()).expect($name)) }
+            unsafe {
+                std::mem::transmute::<unsafe extern "system" fn() -> isize, $ty>(
+                    GetProcAddress(obs, concat!($name, "\0").as_ptr()).expect($name),
+                )
+            }
         };
     }
     let version = f!("obs_get_version_string", unsafe extern "C" fn() -> *const c_char);
