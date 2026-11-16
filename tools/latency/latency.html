@@ -1,0 +1,25 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Mercury latency test</title>
+<!-- Black; white while the left mouse button is down. Drawn with WebGL every animation frame, like the game.
+     ?busy=<ms> adds that much main-thread work per frame to imitate a heavy game loop. -->
+<style>html, body { margin: 0; height: 100%; background: #000; overflow: hidden; } canvas { display: block; width: 100vw; height: 100vh; }</style>
+<canvas id="c"></canvas>
+<script>
+  const busy = Number(new URLSearchParams(location.search).get("busy") || 0);
+  const canvas = document.getElementById("c");
+  const gl = canvas.getContext("webgl2");
+  let down = false;
+  addEventListener("mousedown", () => (down = true));
+  addEventListener("mouseup", () => (down = false));
+  function frame() {
+    if (canvas.width !== innerWidth || canvas.height !== innerHeight) [canvas.width, canvas.height] = [innerWidth, innerHeight];
+    const until = performance.now() + busy;
+    while (performance.now() < until) {}
+    const v = down ? 1 : 0;
+    gl.clearColor(v, v, v, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+</script>

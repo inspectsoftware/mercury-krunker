@@ -26,6 +26,8 @@ for (const step of steps) {
     const box = await evaluate(`(() => { const r = document.querySelector(${JSON.stringify(arg)})?.getBoundingClientRect(); return r && [r.x + r.width / 2, r.y + r.height / 2]; })()`);
     if (!box) { console.log("not found:", arg); continue; }
     for (const type of ["mousePressed", "mouseReleased"]) await send("Input.dispatchMouseEvent", { type, x: box[0], y: box[1], button: "left", clickCount: 1 });
+  } else if (kind === "nav") {
+    await send("Page.navigate", { url: arg });
   } else if (kind === "wait") {
     await new Promise((r) => setTimeout(r, Number(arg)));
   } else if (kind === "eval") {
