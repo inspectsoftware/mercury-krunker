@@ -1,0 +1,45 @@
+/* Mercury's manager windows (swapper, CSS manager) and the code editor. Uses the settings window's look (core/ui.css). */
+.mc-panel {
+  width: min(1120px, 95vw); height: min(760px, 92vh); display: flex; flex-direction: column;
+  background: #14161a; border: 1px solid #2a2e36; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+}
+.mc-panel > .mc-head { flex: none; height: 58px; }
+.mc-panel.dragover { outline: 2px dashed #4b8fbf; outline-offset: -8px; }
+.mc-actions { margin-left: auto; display: flex; gap: 8px; }
+.mc-pbody { flex: 1; min-height: 0; display: flex; }
+.mc-side { width: 300px; flex: none; display: flex; flex-direction: column; border-right: 1px solid #2a2e36; min-height: 0; }
+.mc-main { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 14px 18px; gap: 10px; min-height: 0; }
+.mc-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.mc-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.mc-bar .mc-input { min-width: 0; flex: 1; }
+.mc-hint { color: #858c97; font-size: 12.5px; }
+.mc-path { font: 12.5px/1.4 Consolas, "Cascadia Mono", monospace !important; color: #dfe3e8; word-break: break-all; }
+.mc-list-row { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #1d2026; }
+.mc-list-row:hover { background: #181b20; }
+.mc-list-row.on { background: #1d2430; }
+.mc-list-row .mc-grow { flex: 1; min-width: 0; cursor: pointer; }
+.mc-list-row .mc-btn { padding: 4px 10px; font-size: 12.5px; }
+.mc-tag.ok { background: #1f3a2a; color: #8fe0a8; }
+.mc-btn.danger:hover { background: #4a2328; border-color: #6b2f36; }
+.mc-section { margin: 14px 12px 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6f7783; }
+.mc-ask { display: grid; gap: 8px; padding: 12px; margin: 10px 0; background: #181b20; border: 1px solid #2f343d; border-radius: 9px; }
+
+.mc-code { position: relative; flex: 1; min-height: 0; background: #0e1013; border: 1px solid #2a2e36; border-radius: 8px; overflow: hidden; }
+.mc-code pre, .mc-code textarea {
+  position: absolute; inset: 0; margin: 0; padding: 12px 14px; border: 0; white-space: pre; tab-size: 2; overflow: auto;
+  font: 13px/1.5 Consolas, "Cascadia Mono", monospace !important; letter-spacing: 0;
+}
+.mc-code pre * { font: inherit !important; }
+.mc-code pre { pointer-events: none; color: #c9ced6; overflow: hidden; }
+.mc-code textarea { resize: none; outline: none; background: transparent; color: transparent; caret-color: #e7e9ec; }
+.mc-code textarea::selection { background: rgba(75, 143, 191, 0.35); color: transparent; }
+.mc-hl-com { color: #6a7380; }
+.mc-hl-sel { color: #9ad7ff; }
+.mc-hl-at { color: #c79bf2; }
+.mc-hl-prop { color: #7fd1b9; }
+.mc-hl-val { color: #e7e9ec; }
+.mc-hl-num { color: #f6c177; }
+.mc-hl-color { color: #f39c8f; }
+.mc-hl-str { color: #b5d97a; }
+.mc-hl-imp { color: #ff8080; }
+.mc-hl-punc { color: #858c97; }
