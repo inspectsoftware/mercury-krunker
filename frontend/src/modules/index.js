@@ -7,4 +7,7 @@ import blocklist from "./blocklist.js";
 import hudEditor from "./hudEditor.js";
 import keystrokes from "./keystrokes.js";
 import menuTimer from "./menuTimer.js";
-export default [general, engine, aimFreezeFix, rawInput, blocklist, hudEditor, keystrokes, menuTimer];
+import cssManager from "./cssManager.js";
+import swapper from "./swapper.js";
+
+export default [general, engine, aimFreezeFix, rawInput, blocklist, hudEditor, keystrokes, menuTimer, cssManager, swapper];
