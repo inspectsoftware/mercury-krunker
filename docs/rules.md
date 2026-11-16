@@ -29,6 +29,7 @@ Re-check when either changes.
 | URL blocklist | Ads, trackers, widgets | Low | No rule against it. Admiral may count it, and Krunker may show ad-block prompts. |
 | Raw input (`unadjustedMovement`) | Pointer lock options | Low | The same mouse data, minus Windows acceleration. Page-visible override. |
 | Krunker's aim freeze fix on by default | Krunker's own setting | None | It's Krunker's setting. |
+| Death screen FPS fix | The death screen bar's and chat's slide-in animation (CSS) | Low | Cosmetic CSS on DOM the player already sees. |
 | Mercury's aim freeze fix | The left-button flag on raw mouse moves, inside Chromium | Low | Clicks and mouse movement reach the game unchanged; only "button held" on move events goes. Never sees game state. |
 | Mercury tab in Krunker's settings | Krunker's settings window object | Low | UI only. |
 | Resource swapper, CSS manager, looks, icons, motion blur | Local copies of assets and styles | Low | Cosmetic and local only. Strictly it's a modification of Service materials; tolerated for years across clients. Game code can never be swapped (`resources.rs`). |

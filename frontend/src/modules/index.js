@@ -4,6 +4,7 @@ import engine from "./engine.js";
 import presentHook from "./presentHook.js";
 import perf from "./perf.js";
 import audioFix from "./audioFix.js";
+import deathScreenFix from "./deathScreenFix.js";
 import aimFreezeFix from "./aimFreezeFix.js";
 import rawInput from "./rawInput.js";
 import blocklist from "./blocklist.js";
@@ -41,7 +42,7 @@ import support from "./support.js";
 
 export default [
   general, updater, support,
-  engine, presentHook, perf, audioFix,
+  engine, presentHook, perf, audioFix, deathScreenFix,
   aimFreezeFix, rawInput, blocklist,
   hudEditor, keystrokes, menuTimer,
   cleanerMenu, mercuryCss, classicMenu, icons, motionBlur, cssManager, swapper,
