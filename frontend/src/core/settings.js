@@ -31,11 +31,15 @@ export function get(id) {
 }
 
 export function set(id, value) {
-  if (value === get(id)) return;
-  values[id] = value;
+  if (value === get(id) && id in values) return;
+  if (value === undefined) delete values[id];
+  else values[id] = value;
   persist();
-  for (const fn of listeners.get(id) ?? []) fn(value);
+  for (const fn of listeners.get(id) ?? []) fn(get(id));
 }
+
+/** Back to the default (the key leaves the map, so the host falls back to its own default too). */
+export const reset = (id) => set(id, undefined);
 
 export function onChange(id, fn) {
   if (!listeners.has(id)) listeners.set(id, new Set());

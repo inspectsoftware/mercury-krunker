@@ -46,6 +46,7 @@
 }
 .mc-input:focus, .mc-select:focus { border-color: #4b8fbf; }
 .mc-input.wide { min-width: 320px; }
+.mc-textarea { width: 330px; height: 170px; resize: vertical; font: 12.5px/1.45 Consolas, "Cascadia Mono", monospace !important; white-space: pre; }
 .mc-range { display: flex; align-items: center; gap: 10px; }
 .mc-range input { width: 160px; accent-color: #2f86c2; }
 .mc-range output { min-width: 46px; text-align: right; color: #c9ced6; font-variant-numeric: tabular-nums; }

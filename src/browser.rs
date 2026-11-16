@@ -182,6 +182,20 @@ wrap_request_handler! {
         ) {
             bridge::on_render_process_terminated(browser.cloned());
         }
+
+        // Blocklist and resource swapper (resources.rs), on the IO thread.
+        fn resource_request_handler(
+            &self,
+            _browser: Option<&mut Browser>,
+            _frame: Option<&mut Frame>,
+            _request: Option<&mut Request>,
+            _is_navigation: i32,
+            _is_download: i32,
+            _request_initiator: Option<&CefString>,
+            _disable_default_handling: Option<&mut i32>,
+        ) -> Option<ResourceRequestHandler> {
+            Some(crate::resources::MercuryResources::new())
+        }
     }
 }
 

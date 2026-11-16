@@ -3,5 +3,6 @@ import general from "./general.js";
 import engine from "./engine.js";
 import aimFreezeFix from "./aimFreezeFix.js";
 import rawInput from "./rawInput.js";
+import blocklist from "./blocklist.js";
 
-export default [general, engine, aimFreezeFix, rawInput];
+export default [general, engine, aimFreezeFix, rawInput, blocklist];

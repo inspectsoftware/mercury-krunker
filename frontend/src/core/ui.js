@@ -144,6 +144,13 @@ function control(def) {
     }
     case "text":
       return h("input", { class: `mc-input${def.wide ? " wide" : ""}`, value: value ?? "", placeholder: def.placeholder ?? "", onchange: (e) => changed(def, e.target.value) });
+    case "list": {
+      // One entry per line. Without a saved value it shows the defaults (def.loadDefault, possibly from the host).
+      const area = h("textarea", { class: "mc-input mc-textarea", spellcheck: false, onchange: (e) => changed(def, e.target.value) });
+      if (value != null) area.value = value;
+      else Promise.resolve(def.loadDefault?.() ?? def.default ?? "").then((text) => (area.value = text));
+      return area;
+    }
     case "color":
       return h("input", { type: "color", class: "mc-input", style: { minWidth: "60px", padding: "2px" }, value, onchange: (e) => changed(def, e.target.value) });
     case "key":

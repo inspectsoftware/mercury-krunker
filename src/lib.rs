@@ -5,8 +5,10 @@
 
 mod bridge;
 mod browser;
+mod files;
 mod paths;
 mod renderer;
+mod resources;
 mod settings;
 
 use cef::*;

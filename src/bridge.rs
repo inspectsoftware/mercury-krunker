@@ -112,15 +112,29 @@ impl BrowserSideHandler for Bridge {
     }
 }
 
+/// Each feature area keeps its commands in its own file, under its own prefix ("files.list" → files.rs).
+fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
+    Some(match cmd.split_once('.')?.0 {
+        "files" => crate::files::command(cmd, request),
+        _ => return None,
+    })
+}
+
 fn command(cmd: &str, request: &Value) -> Result<Value, String> {
+    if let Some(result) = route(cmd, request) {
+        return result;
+    }
     match cmd {
         "app.info" => Ok(json!({ "version": VERSION, "dataDir": crate::paths::data_dir() })),
         "settings.save" => {
             let Some(map) = request["settings"].as_object() else {
                 return Err("settings must be an object".into());
             };
-            settings::save(map.clone()).map(|_| Value::Null).map_err(|e| e.to_string())
+            settings::save(map.clone()).map_err(|e| e.to_string())?;
+            crate::resources::reload_blocklist();
+            Ok(Value::Null)
         }
+        "blocklist.defaults" => Ok(json!(crate::resources::DEFAULT_BLOCKLIST)),
         "settings.export" => {
             // A bare file name the page picked; no separators, so it can only land in Downloads.
             let name = request["name"].as_str().unwrap_or_default();
