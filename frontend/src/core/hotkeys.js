@@ -17,6 +17,11 @@ export function comboOf(event) {
  */
 export function hotkey({ id, label, key, handler, when = "any", category, desc }) {
   settings.define({ id, label, type: "key", default: key, category, desc });
+  onHotkey(id, handler, when);
+}
+
+/** Runs `handler` when the binding in setting `id` is pressed: for a module's own setting of type "key". */
+export function onHotkey(id, handler, when = "any") {
   hotkeys.push({ id, handler, when });
 }
 

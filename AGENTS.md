@@ -29,6 +29,8 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
+| `frontend/src/lib/` | helpers modules share: `panel.js` (manager window, file drops), `editor.js` + `highlight.js` (code editor), `style.js` (`lateCss`, `liveCss`: styles after Krunker's), snapping, HUD layout, swap paths |
+| `frontend/test/` | `node --test` unit tests for the pure helpers in `lib/` |
 | `tools/` | dev helpers: `cdp.mjs` (eval in the page), `drive.mjs` (keys/clicks/screenshot) |
 
 ## Adding a feature
@@ -37,7 +39,10 @@ and the reasons are in [PLAN.md](PLAN.md).
   `{id, name, desc, category, perf?, defaultOn?, live?, settings: [...], early?(), init?()}`.
   - Register it in `modules/index.js`.
   - Settings become `<id>.<key>`. Types: `bool`, `number` (min/max/step), `select` (options), `text`, `list`,
-    `color`, `key` (use `hotkey()`), `action` (button + `run`).
+    `color`, `key` (use `hotkey()`, or `onHotkey()` for a module's own key setting), `action` (button + `run`),
+    `hidden` (stored, never shown: JSON state such as the HUD layout).
+  - CSS-only modules: `liveCss(mod, order, text)` from `lib/style.js` switches them on and off without a reload
+    (declare `live: true`).
   - `perf: true` only for modules that help performance (they survive "Performance only").
   - Categories: General, Engine, Performance, Input, HUD, Look, Chat, Social, Matchmaking, Ranked, Accounts,
     Market, Streaming, Userscripts.
