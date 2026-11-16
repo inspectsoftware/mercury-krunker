@@ -18,7 +18,7 @@ wants. Windows first.
 
 ## Architecture
 
-- **`mercury.exe`** is CEF's sandbox `bootstrap.exe`. For every process it loads `mercury.dll` (Rust, `src/`) and
+- **`MercuryClient.exe`** is CEF's sandbox `bootstrap.exe`. For every process it loads `MercuryClient.dll` (Rust, `src/`) and
   calls `RunWinMain`.
 - **Browser process** (`browser.rs`):
   - a Views window, the profile in `%LOCALAPPDATA%\Mercury` (`MERCURY_DATA_DIR` overrides it);
@@ -60,14 +60,17 @@ wants. Windows first.
 
 - **URL blocklist:** about 50 entries (ads, trackers, third-party scripts), editable. It runs on the IO thread, and
   resource swaps win over it.
-- **DXGI present hook** in the GPU process:
-  - waitable flip swapchain;
-  - frame limiter;
-  - present FPS counter in the page.
+- **Present path:** Chromium's own options first: uncapped already means tearing and interval-0 presents; the waitable
+  swap chain (DXGIWaitableSwapChain) is an engine setting. A **DXGI present hook** in the GPU process adds only what
+  Chromium can't do, and never changes Chromium's swap chains:
+  - frame limiter (exact present pacing), plus a page-side cap on the game's frames, since uncapped Chromium floods a
+    GPU-bound PC;
+  - present FPS counter in the page;
+  - the OBS shared texture (M9).
 - **Hybrid laptops:** detected. The fast GPU is set once in Windows' graphics settings, and the hook stays off on
   laptops where the display is wired to the integrated GPU.
 - **Laptop Power Boost:** Windows' Best performance mode while Mercury runs on AC power, then restored.
-- **NVIDIA driver profile** for mercury.exe (driver frame caps lifted).
+- **NVIDIA driver profile** for MercuryClient.exe (driver frame caps lifted).
 - **HighQoS** (no EcoQoS) for the game's renderer and GPU processes.
 - **Fix audio stutters**, without a patch:
   - keep Krunker's Howler context from auto-suspending, which stops automation events from piling up;

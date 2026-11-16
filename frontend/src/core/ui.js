@@ -158,6 +158,8 @@ export function control(def) {
       return keyButton(def, value);
     case "action":
       return h("button", { class: `mc-btn${def.primary ? " primary" : ""}`, onclick: () => def.run() }, def.button ?? "Run");
+    case "custom": // the module builds the control (status panels)
+      return def.render(def);
     default:
       return h("span", {}, String(value));
   }

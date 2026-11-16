@@ -1,4 +1,4 @@
-//! Puts Mercury's icon into mercury.exe (a copy of CEF's bootstrap.exe): every image of an .ico becomes an
+//! Puts Mercury's icon into MercuryClient.exe (a copy of CEF's bootstrap.exe): every image of an .ico becomes an
 //! RT_ICON resource, and the exe's first icon group (the one Explorer, shortcuts and the taskbar show) is replaced
 //! by a group pointing at them.
 

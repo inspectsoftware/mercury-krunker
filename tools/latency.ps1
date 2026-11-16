@@ -27,7 +27,7 @@ New-Item -ItemType Directory -Force $data | Out-Null
 
 $env:MERCURY_DATA_DIR = $data
 $argList = @("--remote-debugging-port=$Port", '--remote-allow-origins=*') + ($Switches -split ' ' | Where-Object { $_ })
-$proc = Start-Process -FilePath "$root\target\bundle\mercury.exe" -ArgumentList $argList -WorkingDirectory "$root\target\bundle" -PassThru
+$proc = Start-Process -FilePath "$root\target\bundle\MercuryClient.exe" -ArgumentList $argList -WorkingDirectory "$root\target\bundle" -PassThru
 try {
   Start-Sleep -Seconds 8
   $page = ([Uri]"$PSScriptRoot\latency\latency.html").AbsoluteUri + "?busy=$Busy"

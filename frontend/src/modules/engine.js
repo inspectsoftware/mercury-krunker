@@ -16,6 +16,15 @@ export default {
       restart: true,
     },
     {
+      key: "waitableSwapChain",
+      label: "Waitable swap chain",
+      desc: "Chromium's own option: limits how many frames DXGI may queue for the screen.",
+      type: "select",
+      default: "",
+      restart: true,
+      options: [["", "Off (Chromium default)"], ["1", "1 frame"], ["2", "2 frames"]],
+    },
+    {
       key: "angle",
       label: "Graphics backend",
       desc: "How Chromium talks to your GPU. Direct3D 11 is the safe default; try the others if you stutter.",

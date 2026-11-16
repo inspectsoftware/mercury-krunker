@@ -18,7 +18,7 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $root = Resolve-Path "$PSScriptRoot\.."
-$exe = "$root\target\bundle\mercury.exe"
+$exe = "$root\target\bundle\MercuryClient.exe"
 $data = Join-Path $env:TEMP "mercury-bench-$Name"
 Remove-Item -Recurse -Force $data -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $data | Out-Null
@@ -34,7 +34,7 @@ try {
 
   # Every Mercury process of this instance, by type.
   function Snapshot {
-    $all = Get-CimInstance Win32_Process -Filter "Name='mercury.exe'"
+    $all = Get-CimInstance Win32_Process -Filter "Name='MercuryClient.exe'"
     $mine = @($all | Where-Object { $_.ProcessId -eq $proc.Id -or $_.ParentProcessId -eq $proc.Id })
     foreach ($p in $mine) {
       $type = if ($p.CommandLine -match '--type=(\S+)') { $Matches[1] } else { 'browser' }

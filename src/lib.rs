@@ -1,6 +1,6 @@
 //! Mercury Client: a Krunker client on CEF. See PLAN.md.
 //!
-//! `mercury.exe` is CEF's sandbox bootstrap; it loads this DLL and calls `RunWinMain` in every process:
+//! `MercuryClient.exe` is CEF's sandbox bootstrap; it loads this DLL and calls `RunWinMain` in every process:
 //! the browser process (window, bridge, settings), renderers (page injection) and the GPU and utility processes.
 
 mod accounts;
@@ -14,11 +14,16 @@ mod log;
 mod media;
 mod mods;
 mod net;
+mod gpu_hook;
+mod nvidia;
 mod paths;
+mod perf;
+mod present;
 mod renderer;
 mod resources;
 mod settings;
 mod update;
+mod system;
 
 use cef::*;
 
@@ -34,6 +39,8 @@ unsafe extern "C" fn RunWinMain(
     let _ = api_hash(sys::CEF_API_VERSION_LAST, 0);
     let args = args::Args::from(MainArgs { instance });
     let mut app = MercuryApp::new();
+    // The GPU process's present hook goes in now, before Chromium starts and before its sandbox locks down.
+    gpu_hook::init();
 
     // Renderer, GPU and utility processes run to completion here; the browser process gets -1.
     let code = execute_process(Some(args.as_main_args()), Some(&mut app), sandbox_info);
@@ -44,6 +51,11 @@ unsafe extern "C" fn RunWinMain(
 }
 
 /// Engine switches, set on the browser process; Chromium hands them on to the GPU and renderer processes.
+///
+/// Measured and not added (2026-11-16, RTX 4060 laptop, rAF over CDP on a fixed WebGL scene, two rounds): each of
+/// --enable-zero-copy, --enable-gpu-rasterization, --disable-low-res-tiling and --num-raster-threads=4 stayed within
+/// ±5% of the baseline (720-790 FPS, p99 1.7-2.7 ms); --ignore-gpu-blocklist too, and it is less safe. Feature lists
+/// are joined into CEF's own (on_before_command_line_processing): replacing CEF's --disable-features crashed it.
 fn engine_switches() -> Vec<(String, Option<String>)> {
     let mut switches: Vec<(String, Option<String>)> = [
         // Keep full speed when the window is covered (overlays, OBS) or unfocused.
@@ -60,8 +72,16 @@ fn engine_switches() -> Vec<(String, Option<String>)> {
     if settings::bool("engine.uncapped", true) {
         // Stock Chromium starves WebSocket messages under held-click input when uncapped (Chromium issue
         // 415071737, the "aim freeze"); Krunker's own aim freeze fix setting (on by default in Mercury) covers it.
+        // Without GPU vsync Chromium also creates its swap chains with tearing and presents with sync interval 0 and
+        // ALLOW_TEARING (measured with the present hook), so the DXGISwapChainPresentInterval0 feature adds nothing.
         switches.push(("disable-frame-rate-limit".into(), None));
         switches.push(("disable-gpu-vsync".into(), None));
+    }
+    // Chromium's own waitable swap chain: DXGI's frame queue limited to N frames (ui/gl/swap_chain_presenter.cc).
+    let queued = settings::string("engine.waitableSwapChain");
+    if matches!(queued.as_str(), "1" | "2") {
+        let feature = format!("DXGIWaitableSwapChain:DXGIWaitableSwapChainMaxQueuedFrames/{queued}");
+        switches.push(("enable-features".into(), Some(feature)));
     }
     for (key, switch) in [("engine.angle", "use-angle"), ("engine.colorProfile", "force-color-profile")] {
         let value = settings::string(key);
@@ -71,7 +91,40 @@ fn engine_switches() -> Vec<(String, Option<String>)> {
     }
     // Custom flags come last so they win.
     switches.extend(parse_flags(&settings::string("engine.flags")));
-    switches
+    merge_features(switches)
+}
+
+/// Chromium reads only the last --enable-features and --disable-features: join every occurrence into one.
+fn merge_features(switches: Vec<(String, Option<String>)>) -> Vec<(String, Option<String>)> {
+    let mut out: Vec<(String, Option<String>)> = Vec::new();
+    for (name, value) in switches {
+        let list = name == "enable-features" || name == "disable-features";
+        match out.iter_mut().find(|(n, _)| list && *n == name) {
+            Some((_, Some(joined))) => {
+                for feature in value.iter().flat_map(|v| v.split(',')).filter(|f| !f.is_empty()) {
+                    if !joined.split(',').any(|f| f == feature) {
+                        if !joined.is_empty() {
+                            joined.push(',');
+                        }
+                        joined.push_str(feature);
+                    }
+                }
+            }
+            _ => out.push((name, value)),
+        }
+    }
+    out
+}
+
+/// "A,B" + "B,C" → "A,B,C": a feature list extended without duplicates, existing order first.
+fn join_features(existing: &str, ours: &str) -> String {
+    let mut out: Vec<&str> = Vec::new();
+    for feature in existing.split(',').chain(ours.split(',')).map(str::trim).filter(|f| !f.is_empty()) {
+        if !out.contains(&feature) {
+            out.push(feature);
+        }
+    }
+    out.join(",")
 }
 
 /// "--name --other=value" → [("name", None), ("other", Some("value"))].
@@ -95,6 +148,22 @@ mod tests {
         let expect = [("a", None), ("b", Some("1")), ("use-angle", Some("d3d11on12")), ("c", Some(""))];
         assert_eq!(parsed, expect.map(|(n, v)| (n.to_string(), v.map(String::from))));
     }
+
+    #[test]
+    fn our_features_extend_cefs_list() {
+        assert_eq!(super::join_features("CefA,CefB", "CefB,Ours"), "CefA,CefB,Ours");
+        assert_eq!(super::join_features("", "Ours"), "Ours");
+        assert_eq!(super::join_features("CefA", ""), "CefA");
+    }
+
+    #[test]
+    fn merge_features_joins_lists_once() {
+        let merged = super::merge_features(super::parse_flags(
+            "--disable-features=A --x --enable-features=B --disable-features=C,A --disable-features=,D",
+        ));
+        let expect = [("disable-features", Some("A,C,D")), ("x", None), ("enable-features", Some("B"))];
+        assert_eq!(merged, expect.map(|(n, v)| (n.to_string(), v.map(String::from))));
+    }
 }
 
 wrap_app! {
@@ -114,10 +183,19 @@ wrap_app! {
                 return;
             }
             for (name, value) in engine_switches() {
-                let name = CefString::from(name.as_str());
+                let switch = CefString::from(name.as_str());
+                // CEF already puts its own feature lists on the command line, and Chromium reads only the last
+                // one: ours must extend CEF's list, never replace it (replacing --disable-features crashed CEF).
+                let value = match value {
+                    Some(ours) if name == "enable-features" || name == "disable-features" => {
+                        let existing = CefString::from(&command_line.switch_value(Some(&switch))).to_string();
+                        Some(join_features(&existing, &ours))
+                    }
+                    other => other,
+                };
                 match value {
-                    Some(value) => command_line.append_switch_with_value(Some(&name), Some(&CefString::from(value.as_str()))),
-                    None => command_line.append_switch(Some(&name)),
+                    Some(value) => command_line.append_switch_with_value(Some(&switch), Some(&CefString::from(value.as_str()))),
+                    None => command_line.append_switch(Some(&switch)),
                 }
             }
         }

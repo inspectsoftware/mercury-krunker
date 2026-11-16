@@ -17,7 +17,7 @@ pub fn settings_file() -> Option<PathBuf> {
     data_dir().map(|d| d.join("settings.json"))
 }
 
-/// Files that ship next to mercury.exe (the page bundle).
+/// Files that ship next to MercuryClient.exe (the page bundle).
 pub fn app_dir() -> PathBuf {
     env::current_exe()
         .ok()

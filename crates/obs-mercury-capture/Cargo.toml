@@ -1,0 +1,38 @@
+[package]
+name = "obs-mercury-capture"
+version = "0.1.0"
+description = "OBS Studio 33 source that shows Mercury Client's game frames from a shared texture"
+# It links libobs (GPL-2.0), so it is GPL too. It shares no code with MercuryClient.dll: they meet only in the shared memory
+# block and the shared texture.
+license = "GPL-2.0-or-later"
+edition = "2024"
+publish = false
+
+[lib]
+# cdylib: the OBS plugin; rlib: lets the examples use the shared-memory code.
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+windows-sys = { version = "0.61", features = [
+    "Win32_Foundation",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading",
+] }
+
+# The examples: test_reader (checks Mercury's capture producer without OBS) and audio_sessions (which process plays
+# sound).
+[dev-dependencies]
+windows = { version = "0.62", features = [
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Media_Audio",
+    "Win32_Media_Audio_Endpoints",
+    "Win32_System_Com",
+    "Win32_System_Com_StructuredStorage",
+    "Win32_System_Variant",
+] }

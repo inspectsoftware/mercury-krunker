@@ -6,7 +6,7 @@ license = "MIT"
 edition = "2024"
 publish = false
 
-# CEF's sandbox bootstrap.exe (shipped as mercury.exe) loads this DLL for every process.
+# CEF's sandbox bootstrap.exe (shipped as MercuryClient.exe) loads this DLL for every process.
 [lib]
 crate-type = ["cdylib"]
 
@@ -15,18 +15,35 @@ crate-type = ["cdylib"]
 cef = { version = "=156.6.0", default-features = false, features = ["sandbox"] }
 base64 = "0.22"
 serde_json = "1"
-# WinRT media session (now-playing overlay, media.rs).
-windows = { version = "0.62", features = ["Media_Control"] }
 windows-sys = { version = "0.61", features = [
     "Win32_Foundation",
     "Win32_Networking_WinHttp",
+    "Win32_Security",
+    "Win32_Security_Authorization",
     "Win32_Security_Cryptography",
     "Win32_System_Com",
     "Win32_System_Com_Urlmon",
+    "Win32_System_Diagnostics_ToolHelp",
+    "Win32_System_LibraryLoader",
+    "Win32_System_Memory",
+    "Win32_System_Performance",
+    "Win32_System_Power",
     "Win32_System_Registry",
     "Win32_System_SystemInformation",
+    "Win32_System_Threading",
     "Win32_UI_Shell",
     "Win32_UI_WindowsAndMessaging",
+] }
+# COM and WinRT: the WinRT media session (now-playing overlay, media.rs) and the GPU process's DXGI hook
+# (gpu_hook.rs, whose DLLs are loaded at runtime, never imported).
+windows = { version = "0.62", features = [
+    "Media_Control",
+    "Win32_Graphics_Direct3D",
+    "Win32_Graphics_Direct3D11",
+    "Win32_Graphics_Dxgi",
+    "Win32_Graphics_Dxgi_Common",
+    "Win32_Graphics_Gdi",
+    "Win32_Security",
 ] }
 
 [profile.release]
@@ -36,4 +53,4 @@ codegen-units = 1
 debug = "line-tables-only"
 
 [workspace]
-members = ["xtask", "tools/latency"]
+members = ["xtask", "tools/latency", "crates/obs-mercury-capture"]

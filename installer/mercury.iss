@@ -24,7 +24,7 @@ Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
 SetupIconFile=..\assets\brand\mercury.ico
-UninstallDisplayIcon={app}\mercury.exe
+UninstallDisplayIcon={app}\MercuryClient.exe
 ; Updates run this installer silently while Mercury is open: close it, never restart Windows.
 CloseApplications=force
 RestartApplications=no
@@ -36,10 +36,10 @@ Name: "desktopicon"; Description: "Create a desktop shortcut"; Flags: unchecked
 Source: "..\target\bundle\*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\Mercury Client"; Filename: "{app}\mercury.exe"
-Name: "{autodesktop}\Mercury Client"; Filename: "{app}\mercury.exe"; Tasks: desktopicon
+Name: "{autoprograms}\Mercury Client"; Filename: "{app}\MercuryClient.exe"
+Name: "{autodesktop}\Mercury Client"; Filename: "{app}\MercuryClient.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\mercury.exe"; Description: "Start Mercury Client"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\MercuryClient.exe"; Description: "Start Mercury Client"; Flags: nowait postinstall skipifsilent
 ; After a silent update (the auto-updater), start the new version.
-Filename: "{app}\mercury.exe"; Flags: nowait; Check: WizardSilent
+Filename: "{app}\MercuryClient.exe"; Flags: nowait; Check: WizardSilent

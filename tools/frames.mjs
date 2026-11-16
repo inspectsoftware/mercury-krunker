@@ -1,8 +1,8 @@
-// node frames.mjs <port> <seconds> → JSON: requestAnimationFrame rate and frame-time percentiles in the krunker.io
-// page (the game loop's cadence; with uncapped FPS, the game's FPS).
-const [port = "9222", seconds = "20"] = process.argv.slice(2);
+// node frames.mjs <port> <seconds> [url part] → JSON: requestAnimationFrame rate and frame-time percentiles in the
+// page whose URL contains [url part] (default krunker.io): the game loop's cadence, with uncapped FPS the game's FPS.
+const [port = "9222", seconds = "20", match = "krunker.io"] = process.argv.slice(2);
 const targets = await (await fetch(`http://127.0.0.1:${port}/json/list`)).json();
-const page = targets.find((t) => t.type === "page" && t.url.includes("krunker.io"));
+const page = targets.find((t) => t.type === "page" && t.url.includes(match));
 const ws = new WebSocket(page.webSocketDebuggerUrl);
 await new Promise((r) => ws.addEventListener("open", r));
 const expression = `new Promise((done) => {

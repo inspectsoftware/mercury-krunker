@@ -31,6 +31,9 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
 | `src/discord.rs`, `src/media.rs`, `src/mods.rs` | `discord.*` (Rich Presence over Discord's IPC pipe), `media.current` (WinRT media session), `mods.download` and `game_link` (krunker.io game links open in the main window, `browser.rs` on_before_popup) |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
+| `src/gpu_hook.rs`, `src/present.rs` | GPU process: the DXGI present hook (limiter, present stats, OBS texture); the shared memory block it shares with the browser and OBS |
+| `src/perf.rs`, `src/system.rs`, `src/nvidia.rs` | `perf.*` (stats, HighQoS, CPU throttler, system check), `system.*` (GPU preference, Power Boost, NVIDIA profile: each undone through `<data>/system-restore.json`) |
+| `crates/obs-mercury-capture` | The OBS 33 plugin (GPL, separate from MercuryClient.dll); `examples/test_reader.rs` checks the capture without OBS |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
 | `frontend/src/lib/` | helpers modules share: `panel.js` (manager window with file drops: swapper, CSS manager), `floating.js` + `floating.css` (draggable, resizable floating windows and tables: matchmaker, pings, ranked queue, accounts, market), `editor.js` + `highlight.js` (code editor), `style.js` (`lateCss`, `liveCss`: styles after Krunker's), `krunker.js` (krapio clients, `account()`, `paced`, IndexedDB `cached`), `pings.js`, `ranked.js`, `sound.js`, snapping, HUD layout, swap paths |
@@ -74,7 +77,7 @@ npm --prefix frontend test                              # page-script unit tests
   can't share a data dir.
 
   ```powershell
-  $env:MERCURY_DATA_DIR = "<scratch>\data"; Start-Process target\bundle\mercury.exe -ArgumentList '--remote-debugging-port=9301','--remote-allow-origins=*' -WorkingDirectory target\bundle
+  $env:MERCURY_DATA_DIR = "<scratch>\data"; Start-Process target\bundle\MercuryClient.exe -ArgumentList '--remote-debugging-port=9301','--remote-allow-origins=*' -WorkingDirectory target\bundle
   node tools/cdp.mjs 9301 "document.title"
   node tools/drive.mjs 9301 shot.png key:F8 wait:400 "eval:document.querySelectorAll('.mc-row').length"
   ```

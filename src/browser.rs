@@ -24,6 +24,16 @@ thread_local! {
 pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
     crate::log::install_panic_hook();
     settings::load();
+    let safe = std::env::args().any(|a| a == "--safe-mode");
+    // Before initialize: Chromium may launch the GPU process during it.
+    crate::perf::create_shared(safe);
+    // After a crash, Chrome's session restore reopens the last page in a window Mercury doesn't manage (no page
+    // script, no blocklist). Mercury always opens its own window, so the saved sessions go before Chromium starts.
+    if let Some(dir) = paths::profile_dir() {
+        for name in ["Sessions", "Sessions_Encrypted"] {
+            let _ = fs::remove_dir_all(dir.join("Default").join(name));
+        }
+    }
     let profile = paths::profile_dir()
         .map(|p| p.to_string_lossy().into_owned())
         .unwrap_or_default();
@@ -48,11 +58,14 @@ pub fn run(args: &args::Args, app: &mut App, sandbox_info: *mut u8) -> i32 {
         let _ = fs::create_dir_all(marker.parent().unwrap_or(marker));
         let _ = fs::write(marker, "");
     }
+    // Only now: a second launch hands off to the running instance inside initialize and returns above.
+    crate::perf::start(safe);
     run_message_loop();
     shutdown();
     if let Some(marker) = &marker {
         let _ = fs::remove_file(marker);
     }
+    crate::perf::stop();
 
     // Relaunch only after shutdown: until then the profile is locked and a new instance would hand off to us.
     if RESTART.load(Ordering::Relaxed)
@@ -127,6 +140,13 @@ wrap_browser_process_handler! {
             );
             let mut window = MercuryWindow::new(RefCell::new(browser_view), true);
             window_create_top_level(Some(&mut window));
+        }
+
+        // Chromium only forwards an allowlist of the browser's switches: the GPU process gets the hook's here.
+        fn on_before_child_process_launch(&self, command_line: Option<&mut CommandLine>) {
+            if let Some(command_line) = command_line {
+                crate::perf::on_child_launch(command_line);
+            }
         }
 
         // A second launch hands off to this instance (the profile is locked): bring our window up instead.

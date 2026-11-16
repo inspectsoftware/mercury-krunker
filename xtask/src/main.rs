@@ -1,11 +1,13 @@
 //! Repo tasks:
-//! - `cargo xtask bundle [--release]`: builds the page script (frontend/) and mercury.dll, and lays out a runnable
+//! - `cargo xtask bundle [--release]`: builds the page script (frontend/) and MercuryClient.dll, and lays out a runnable
 //!   app in target/bundle.
 //! - `cargo xtask installer`: a release bundle, then the Inno Setup installer in target/installer.
 
 mod icon;
 
 use std::{env, fs, path::Path, path::PathBuf, process::Command, process::exit};
+
+const EXE: &str = "MercuryClient.exe";
 
 fn fail(message: &str) -> ! {
     eprintln!("{message}");
@@ -27,7 +29,13 @@ fn bundle(release: bool) {
     run("frontend", "npm run build");
 
     let out = Path::new("target/bundle");
-    let exe = cef::build_util::win::build_bundle(out, "mercury", release).unwrap_or_else(|e| fail(&format!("bundle failed: {e}")));
+    cef::build_util::win::build_bundle(out, "mercury", release).unwrap_or_else(|e| fail(&format!("bundle failed: {e}")));
+    // Ship as MercuryClient.exe: NVIDIA's driver database already gives a bare "mercury.exe" another game's profile.
+    // The bootstrap exe loads the DLL named like itself, so both move together (the PDB keeps the name the DLL knows).
+    for (from, to) in [("mercury.exe", EXE), ("mercury.dll", "MercuryClient.dll"), ("mercury.exe.manifest", "MercuryClient.exe.manifest")] {
+        fs::rename(out.join(from), out.join(to)).unwrap_or_else(|e| fail(&format!("rename {from}: {e}")));
+    }
+    let exe = out.join(EXE);
     fs::copy("target/frontend.js", out.join("frontend.js")).unwrap_or_else(|e| fail(&format!("frontend.js: {e}")));
     icon::set(&exe, Path::new("assets/brand/mercury.ico")).unwrap_or_else(|e| fail(&format!("icon: {e}")));
     println!("Run {}", exe.display());
