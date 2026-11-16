@@ -36,8 +36,11 @@ The first build downloads CEF 156 into `.cef/` and the page script's packages in
 
 - **Installer:** `cargo xtask installer` builds a release bundle and the installer at
   `target/installer/MercuryClient-Setup-<version>.exe` (Inno Setup 6, per user, no admin rights).
-- **Releasing:** raise `version` in `Cargo.toml`, commit, then push a tag `v<version>`. GitHub Actions
-  (`.github/workflows/release.yml`) builds the installer and publishes the release.
+- **Releasing:**
+  1. Raise `version` in `Cargo.toml`, commit, then push a tag `v<version>`.
+  2. GitHub Actions (`.github/workflows/release.yml`) builds the installer and publishes it as a **pre-release**.
+  3. Once it's tried, promote it with `gh release edit v<version> --prerelease=false --latest`. Only then do clients
+     update to it.
 - **Release notes:** `docs/releases/v<version>.md`. The release shows them, and so does the client's "what's new"
   window after an update.
 - **Updates:** clients offer the newest release, check its SHA-256 and update themselves.
