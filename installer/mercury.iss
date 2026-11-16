@@ -23,6 +23,7 @@ OutputBaseFilename=MercuryClient-Setup-{#AppVersion}
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\assets\brand\mercury.ico
 UninstallDisplayIcon={app}\mercury.exe
 ; Updates run this installer silently while Mercury is open: close it, never restart Windows.
 CloseApplications=force

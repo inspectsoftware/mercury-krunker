@@ -3,6 +3,8 @@
 //!   app in target/bundle.
 //! - `cargo xtask installer`: a release bundle, then the Inno Setup installer in target/installer.
 
+mod icon;
+
 use std::{env, fs, path::Path, path::PathBuf, process::Command, process::exit};
 
 fn fail(message: &str) -> ! {
@@ -27,6 +29,7 @@ fn bundle(release: bool) {
     let out = Path::new("target/bundle");
     let exe = cef::build_util::win::build_bundle(out, "mercury", release).unwrap_or_else(|e| fail(&format!("bundle failed: {e}")));
     fs::copy("target/frontend.js", out.join("frontend.js")).unwrap_or_else(|e| fail(&format!("frontend.js: {e}")));
+    icon::set(&exe, Path::new("assets/brand/mercury.ico")).unwrap_or_else(|e| fail(&format!("icon: {e}")));
     println!("Run {}", exe.display());
 }
 

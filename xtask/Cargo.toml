@@ -7,3 +7,4 @@ publish = false
 
 [dependencies]
 cef = { version = "=156.6.0", default-features = false, features = ["sandbox", "build-util"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_LibraryLoader"] }

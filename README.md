@@ -66,7 +66,10 @@ Mercury's code is its own. These projects gave us ideas, or are used as librarie
 
 ## License
 
-MIT, see [LICENSE](LICENSE). Third-party notices ship with every build:
+MIT, see [LICENSE](LICENSE). The exception is the Mercury name, mark and icons in `assets/brand/`: they are not
+covered by the MIT license, so forks need their own.
+
+Third-party notices ship with every build:
 - Chromium's and CEF's licenses in `CREDITS.html`;
 - krapio's MIT notice inside `frontend.js`.
 

@@ -1502,6 +1502,7 @@ name = "xtask"
 version = "0.1.0"
 dependencies = [
  "cef",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

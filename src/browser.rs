@@ -83,6 +83,11 @@ pub fn restart(safe: bool) {
     with_main_window(|w| w.close());
 }
 
+fn icon(png: &[u8]) -> Option<Image> {
+    let image = image_create()?;
+    (image.add_png(1.0, Some(png)) == 1).then_some(image)
+}
+
 /// What every krunker.io page in the main window runs first: the bridge secret, the settings and the bundle.
 fn page_script() -> String {
     let safe = command_line_get_global().is_some_and(|c| safe_mode(&c));
@@ -317,6 +322,13 @@ wrap_window_delegate! {
                 return;
             };
             window.add_child_view(Some(&mut View::from(browser_view)));
+            // Mercury's icon in the title bar and Alt-Tab (small), and on the taskbar (large).
+            if let Some(mut small) = icon(include_bytes!("../assets/brand/icon-64.png")) {
+                window.set_window_icon(Some(&mut small));
+            }
+            if let Some(mut large) = icon(include_bytes!("../assets/brand/icon-256.png")) {
+                window.set_window_app_icon(Some(&mut large));
+            }
             window.show();
             if self.main {
                 window.set_title(Some(&CefString::from("Mercury Client")));
