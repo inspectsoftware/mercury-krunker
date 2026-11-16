@@ -3,12 +3,15 @@
 //! `mercury.exe` is CEF's sandbox bootstrap; it loads this DLL and calls `RunWinMain` in every process:
 //! the browser process (window, bridge, settings), renderers (page injection) and the GPU and utility processes.
 
+mod accounts;
+mod attention;
 mod bridge;
 mod browser;
 mod discord;
 mod files;
 mod media;
 mod mods;
+mod net;
 mod paths;
 mod renderer;
 mod resources;

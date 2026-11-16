@@ -94,6 +94,7 @@ impl BrowserSideHandler for Bridge {
         match cmd.as_str() {
             // These touch the window or the shell: run them here on the UI thread.
             "window.fullscreen" => reply(&callback, fullscreen(&request)),
+            "window.attention" => reply(&callback, crate::attention::attention(&request)),
             "shell.open" => reply(&callback, open_url(&request)),
             "app.restart" => {
                 reply(&callback, Ok(Value::Null));
@@ -119,6 +120,8 @@ fn route(cmd: &str, request: &Value) -> Option<Result<Value, String>> {
         "discord" => crate::discord::command(cmd, request),
         "media" => crate::media::command(cmd, request),
         "mods" => crate::mods::command(cmd, request),
+        "accounts" => crate::accounts::command(cmd, request),
+        "net" => crate::net::command(cmd, request),
         _ => return None,
     })
 }

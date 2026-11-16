@@ -34,8 +34,8 @@ Re-check when either changes.
 | HUD editor, keystrokes, menu timer | DOM the player already sees | Low | Cosmetic. |
 | Matchmaker (F6) | Krunker's public game list, then a normal join | Low | Lobby choice, not gameplay. Polls only on demand (botting rule). |
 | Battle pass claim-all | Krunker's claim buttons | Low | Account housekeeping, not gameplay. Runs once per click, never on a timer. |
-| External ranked queue | Krunker's own queue | Medium | Must only use what the game itself does, at the same rate. Review it before shipping. |
-| Account manager | Krunker's login form, local DPAPI storage | Low | The player's own accounts; never shared or sent anywhere else. |
+| External ranked queue | Krunker's own ranked menu and queue button | Low | Presses the button a player would press, once per click. No private endpoints. |
+| Account manager | Krunker's login form, local DPAPI storage | Medium | The player's own accounts, never shared. But Krunker's login sends mouse and keystroke timings plus a Cloudflare check, so a script-filled login may be scored as automated. Try Ctrl+Alt+1 on a throwaway account before relying on it. |
 | Market | Krunker's read-only APIs | Low–medium | Read-only, cached, rate-limited: no bulk scraping. |
 | Hardpoint enemy counter | Only what the HUD shows | Low | Dropped if it would need hidden state. |
 | Userscripts | Whatever the player loads | Player's | Off by default. The manager tells players to load cosmetic scripts only. |

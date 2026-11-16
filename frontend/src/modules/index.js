@@ -23,6 +23,13 @@ import nowPlaying from "./nowPlaying.js";
 import mods from "./mods.js";
 import battlePass from "./battlePass.js";
 import rankStats from "./rankStats.js";
+import matchmaker from "./matchmaker.js";
+import realPing from "./realPing.js";
+import rankedQueue from "./rankedQueue.js";
+import rankedAlert from "./rankedAlert.js";
+import rankedRating from "./rankedRating.js";
+import accounts from "./accounts.js";
+import market from "./market.js";
 
 export default [
   general, engine, aimFreezeFix, rawInput, blocklist,
@@ -30,4 +37,6 @@ export default [
   cleanerMenu, mercuryCss, classicMenu, icons, motionBlur, cssManager, swapper,
   betterChat, chatLogs, endMessage,
   clanColors, discordRpc, nowPlaying, mods, battlePass, rankStats,
+  matchmaker, realPing, rankedQueue, rankedAlert, rankedRating,
+  accounts, market,
 ];

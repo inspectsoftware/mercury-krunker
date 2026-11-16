@@ -25,13 +25,16 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/renderer.rs` | renderer: evaluates the page script in krunker.io's main frame before Krunker's scripts |
 | `src/bridge.rs` | `cefQuery` router: page → host commands. Secret-checked, main frame only. `route()` sends `area.*` to `src/<area>.rs` |
 | `src/files.rs` | `files.*`: read/write in `<data>/{swap,css,scripts,sounds,images}` only |
+| `src/accounts.rs` | `accounts.*`: the account list in `<data>/accounts.dat`, DPAPI-encrypted; passwords leave only via `accounts.credentials` |
+| `src/net.rs` | `net.ping`: timed TCP connects to `*.krunker.io` lobby hosts (real ping per region) |
+| `src/attention.rs` | `window.attention` (UI thread): flash the taskbar button or bring the window to the front |
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
 | `src/discord.rs`, `src/media.rs`, `src/mods.rs` | `discord.*` (Rich Presence over Discord's IPC pipe), `media.current` (WinRT media session), `mods.download` and `game_link` (krunker.io game links open in the main window, `browser.rs` on_before_popup) |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
-| `frontend/src/lib/` | helpers modules share: `panel.js` (manager window, file drops), `editor.js` + `highlight.js` (code editor), `style.js` (`lateCss`, `liveCss`: styles after Krunker's), snapping, HUD layout, swap paths |
-| `frontend/test/` | `node --test` unit tests for the pure helpers in `lib/` |
+| `frontend/src/lib/` | helpers modules share: `panel.js` (manager window with file drops: swapper, CSS manager), `floating.js` + `floating.css` (draggable, resizable floating windows and tables: matchmaker, pings, ranked queue, accounts, market), `editor.js` + `highlight.js` (code editor), `style.js` (`lateCss`, `liveCss`: styles after Krunker's), `krunker.js` (krapio clients, `account()`, `paced`, IndexedDB `cached`), `pings.js`, `ranked.js`, `sound.js`, snapping, HUD layout, swap paths |
+| `frontend/test/` | `node --test` unit tests for the pure helpers in `lib/` (lobbies, market math, snapping, HUD layout, swap paths...) |
 | `tools/` | dev helpers: `cdp.mjs` (eval in the page), `drive.mjs` (keys/clicks/screenshot) |
 
 ## Adding a feature

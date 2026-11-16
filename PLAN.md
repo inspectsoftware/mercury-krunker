@@ -155,7 +155,9 @@ maps load can be replaced with the swapper.
 - **Rank progress** and **nuke counter** (career total, optional goal), through the APIs.
 - **Hardpoint enemy counter:** only from what the HUD already shows; dropped if it would need hidden state.
 
-### M7: matchmaking and ranked
+### M7: matchmaking and ranked ✅ (merged 2026-11-16)
+
+Still to verify with a login: Krunker's ranked queue button and the ranked rating.
 
 - **Matchmaker:** F6 joins the lowest-ping lobby that fits the filters (region, mode, map, players, time left).
 - **Real ping:**
@@ -166,7 +168,12 @@ maps load can be replaced with the swapper.
 - **Ranked match alert:** the window comes to the front or flashes when a match is found while tabbed out.
 - Ranked rating (ELO/MMR) display.
 
-### M8: accounts and market
+### M8: accounts and market ✅ (merged 2026-11-16)
+
+- **Still to verify with a login:** the real login fill, which may be scored as automated (see docs/rules.md),
+  plus the inventory and open trades.
+- **Shortcut:** two window helpers live side by side: `lib/panel.js` (managers) and `lib/floating.js` (floating
+  windows). Merge them into one when either grows.
 
 - **Encrypted account manager:** Windows DPAPI; drag to order; Ctrl+Alt+1/2/3 log in the first three
   (rebindable).
