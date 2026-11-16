@@ -26,9 +26,11 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/bridge.rs` | `cefQuery` router: page → host commands. Secret-checked, main frame only. `route()` sends `area.*` to `src/<area>.rs` |
 | `src/files.rs` | `files.*`: read/write in `<data>/{swap,css,scripts,sounds,images}` only |
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
+| `src/discord.rs`, `src/media.rs`, `src/mods.rs` | `discord.*` (Rich Presence over Discord's IPC pipe), `media.current` (WinRT media session), `mods.download` and `game_link` (krunker.io game links open in the main window, `browser.rs` on_before_popup) |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
+| `frontend/src/lib/`, `frontend/test/` | pure page logic (no DOM) and its `node --test` tests |
 | `tools/` | dev helpers: `cdp.mjs` (eval in the page), `drive.mjs` (keys/clicks/screenshot) |
 
 ## Adding a feature
@@ -37,7 +39,7 @@ and the reasons are in [PLAN.md](PLAN.md).
   `{id, name, desc, category, perf?, defaultOn?, live?, settings: [...], early?(), init?()}`.
   - Register it in `modules/index.js`.
   - Settings become `<id>.<key>`. Types: `bool`, `number` (min/max/step), `select` (options), `text`, `list`,
-    `color`, `key` (use `hotkey()`), `action` (button + `run`).
+    `color`, `key` (use `hotkey()`, or `bind()` for a module's own `key` setting), `action` (button + `run`).
   - `perf: true` only for modules that help performance (they survive "Performance only").
   - Categories: General, Engine, Performance, Input, HUD, Look, Chat, Social, Matchmaking, Ranked, Accounts,
     Market, Streaming, Userscripts.
