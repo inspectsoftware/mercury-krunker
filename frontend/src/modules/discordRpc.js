@@ -1,5 +1,9 @@
 // Discord Rich Presence from Krunker's own getGameActivity(). The host speaks Discord's local IPC (src/discord.rs);
-// this module sends the activity every few seconds when it changes. Idle until a Discord application ID is set.
+// this module sends the activity every few seconds when it changes. It runs as Mercury Client's own Discord
+// application unless the player sets another ID (empty: off).
+
+/** Mercury Client's Discord application: its name, icon and the "mercury" art asset. Public by design. */
+const MERCURY_APP_ID = "1571970847302754484";
 
 import { call } from "../core/host.js";
 import * as settings from "../core/settings.js";
@@ -49,9 +53,9 @@ export default {
     {
       key: "clientId",
       label: "Discord application ID",
-      desc: "From your application in the Discord Developer Portal. Empty: off.",
+      desc: "Mercury Client's own by default. Use your own application's ID for another name or picture; empty turns it off.",
       type: "text",
-      default: "",
+      default: MERCURY_APP_ID,
       placeholder: "17 to 20 digits",
       onChange: () => ((last = null), (pausedUntil = 0)),
     },
