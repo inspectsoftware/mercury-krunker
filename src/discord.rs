@@ -85,6 +85,8 @@ fn activity(page: &Value) -> Result<Value, String> {
         }
         activity.insert("buttons".into(), json!([{ "label": "Join", "url": url }]));
     }
+    // The Mercury icon: the Rich Presence art asset named "mercury" in the Discord application (assets/brand/icon-1024.png).
+    activity.insert("assets".into(), json!({ "large_image": "mercury", "large_text": "Mercury Client" }));
     Ok(Value::Object(activity))
 }
 
@@ -216,6 +218,7 @@ mod tests {
                 "details": "Free for All on Burg",
                 "timestamps": { "start": 1_700_000_000_000u64 },
                 "buttons": [{ "label": "Join", "url": "https://krunker.io/?game=FRA:abc12" }],
+                "assets": { "large_image": "mercury", "large_text": "Mercury Client" },
             })
         );
         assert_eq!(activity(&json!({ "details": "é".repeat(200) })).unwrap()["details"].as_str().unwrap().chars().count(), 128);
