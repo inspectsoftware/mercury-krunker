@@ -25,10 +25,14 @@ and the reasons are in [PLAN.md](PLAN.md).
 | `src/renderer.rs` | renderer: evaluates the page script in krunker.io's main frame before Krunker's scripts |
 | `src/bridge.rs` | `cefQuery` router: page → host commands. Secret-checked, main frame only. `route()` sends `area.*` to `src/<area>.rs` |
 | `src/files.rs` | `files.*`: read/write in `<data>/{swap,css,scripts,sounds,images}` only |
+| `src/accounts.rs` | `accounts.*`: the account list in `<data>/accounts.dat`, DPAPI-encrypted; passwords leave only via `accounts.credentials` |
+| `src/net.rs` | `net.ping`: timed TCP connects to `*.krunker.io` lobby hosts (real ping per region) |
+| `src/attention.rs` | `window.attention` (UI thread): flash the taskbar button or bring the window to the front |
 | `src/resources.rs` | IO thread: URL blocklist and resource swapper |
 | `src/settings.rs`, `src/paths.rs` | `settings.json`, data folders (`MERCURY_DATA_DIR` overrides `%LOCALAPPDATA%\Mercury`) |
 | `frontend/src/core/` | `host.js` (bridge `call`), `settings.js`, `modules.js` (registry), `hotkeys.js`, `ui.js` (settings window), `dom.js` (`h`, `css`, `waitFor`, `toast`) |
 | `frontend/src/modules/` | one file per feature module, listed in `modules/index.js` |
+| `frontend/src/lib/` | shared by modules: `panel.js` (floating windows, tables), `krunker.js` (krapio clients, `account()`, `paced`, IndexedDB `cached`), `pings.js`, `ranked.js`, `sound.js`; pure logic (`lobbies.js`, `market.js`) is unit-tested in `frontend/test/` |
 | `tools/` | dev helpers: `cdp.mjs` (eval in the page), `drive.mjs` (keys/clicks/screenshot) |
 
 ## Adding a feature
@@ -37,7 +41,8 @@ and the reasons are in [PLAN.md](PLAN.md).
   `{id, name, desc, category, perf?, defaultOn?, live?, settings: [...], early?(), init?()}`.
   - Register it in `modules/index.js`.
   - Settings become `<id>.<key>`. Types: `bool`, `number` (min/max/step), `select` (options), `text`, `list`,
-    `color`, `key` (use `hotkey()`), `action` (button + `run`).
+    `color`, `key` (in the module's settings, bound with `onKey(id, handler)`), `action` (button + `run`),
+    `hidden` (stored, not shown).
   - `perf: true` only for modules that help performance (they survive "Performance only").
   - Categories: General, Engine, Performance, Input, HUD, Look, Chat, Social, Matchmaking, Ranked, Accounts,
     Market, Streaming, Userscripts.

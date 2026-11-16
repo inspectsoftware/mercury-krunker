@@ -9,5 +9,7 @@ import realPing from "./realPing.js";
 import rankedQueue from "./rankedQueue.js";
 import rankedAlert from "./rankedAlert.js";
 import rankedRating from "./rankedRating.js";
+import accounts from "./accounts.js";
+import market from "./market.js";
 
-export default [general, engine, aimFreezeFix, rawInput, blocklist, matchmaker, realPing, rankedQueue, rankedAlert, rankedRating];
+export default [general, engine, aimFreezeFix, rawInput, blocklist, matchmaker, realPing, rankedQueue, rankedAlert, rankedRating, accounts, market];
