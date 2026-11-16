@@ -4,5 +4,7 @@ import engine from "./engine.js";
 import aimFreezeFix from "./aimFreezeFix.js";
 import rawInput from "./rawInput.js";
 import blocklist from "./blocklist.js";
-
-export default [general, engine, aimFreezeFix, rawInput, blocklist];
+import hudEditor from "./hudEditor.js";
+import keystrokes from "./keystrokes.js";
+import menuTimer from "./menuTimer.js";
+export default [general, engine, aimFreezeFix, rawInput, blocklist, hudEditor, keystrokes, menuTimer];
