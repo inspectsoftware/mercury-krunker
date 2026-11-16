@@ -11,9 +11,9 @@ const CSS = `.death-ui-bottom, .death-ui-bottom-empty, #uiBase.onDeathScrn #chat
 const mod = {
   id: "deathScreenFix",
   name: "Fix death screen FPS",
-  desc: "Krunker slides the death screen's bar and the chat in a way that makes Chromium redraw them every frame, and the FPS collapses for 1.5 s. Mercury shows them at once instead.",
   category: "Performance",
   perf: true,
+  toggle: false, // always on: nothing to choose
   live: true,
   init: () => apply(),
 };

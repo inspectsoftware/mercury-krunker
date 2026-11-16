@@ -93,7 +93,6 @@ impl BrowserSideHandler for Bridge {
         let cmd = request["cmd"].as_str().unwrap_or_default().to_owned();
         match cmd.as_str() {
             // These touch the window or the shell: run them here on the UI thread.
-            "window.fullscreen" => reply(&callback, fullscreen(&request)),
             "window.attention" => reply(&callback, crate::attention::attention(&request)),
             "shell.open" => reply(&callback, open_url(&request)),
             // DevTools methods must be called on the UI thread; this one only queues a message.
@@ -178,15 +177,6 @@ pub(crate) fn downloads_dir() -> Option<std::path::PathBuf> {
     });
     unsafe { CoTaskMemFree(raw as _) };
     path
-}
-
-fn fullscreen(request: &Value) -> Result<Value, String> {
-    browser::with_main_window(|w| {
-        let on = request["on"].as_bool().unwrap_or(w.is_fullscreen() == 0);
-        w.set_fullscreen(on as i32);
-        json!(on)
-    })
-    .ok_or_else(|| "no window".into())
 }
 
 /// Opens a web link in the default browser. Only http(s): the page must never launch files or other schemes.

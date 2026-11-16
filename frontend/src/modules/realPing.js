@@ -22,7 +22,7 @@ async function showPanel(fresh = false) {
     const rows = Object.keys({ ...REGIONS, ...pings }).sort((a, b) => (pings[a] ?? 1e9) - (pings[b] ?? 1e9));
     p.setStatus(t ? `measured ${ago(t)}` : "");
     p.body.replaceChildren(
-      ...rows.map((key) => h("div", { class: "mc-float-row", style: { justifyContent: "space-between", margin: "0 0 4px" } }, regionName(key), pingTag(pings[key]))),
+      ...rows.map((key) => h("div", { class: "mc-float-row", style: { justifyContent: "space-between", flexWrap: "nowrap", margin: "0 0 4px" } }, regionName(key), pingTag(pings[key]))),
       h("div", { class: "mc-float-actions" }, h("button", { class: "mc-btn", onclick: () => measure(0) }, "Measure again")),
     );
   };

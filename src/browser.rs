@@ -359,8 +359,12 @@ wrap_window_delegate! {
             window.show();
             if self.main {
                 window.set_title(Some(&CefString::from("Mercury Client")));
-                // Chrome-style windows ignore initial_show_state, so maximize explicitly.
-                window.maximize();
+                match settings::string("general.windowMode").as_str() {
+                    "borderless" => window.set_fullscreen(1),
+                    "windowed" => window.center_window(Some(&Size { width: 1280, height: 720 })),
+                    // Chrome-style windows ignore initial_show_state, so maximize explicitly.
+                    _ => window.maximize(),
+                }
                 MAIN_WINDOW.with(|w| *w.borrow_mut() = Some(window.clone()));
             }
         }

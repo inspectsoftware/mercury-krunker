@@ -46,13 +46,14 @@ test("Discord activity from getGameActivity()", () => {
   const game = { id: "FRA:n12t0", time: 138, user: "Guest", class: { name: "Triggerman", index: 0 }, map: "SkyTemple", mode: "Free for All", custom: false };
   const now = 1_700_000_000_000;
   assert.deepEqual(discordActivity(game, { now }), {
-    details: "Free for All on SkyTemple",
-    state: "Playing Triggerman",
+    details: "Playing Krunker.io",
+    state: "Free for All on SkyTemple",
     end: 1_700_000_140_000,
   });
   assert.equal(discordActivity(game, { now, join: true }).joinUrl, "https://krunker.io/?game=FRA:n12t0");
   assert.equal(discordActivity({ ...game, time: 0 }, { now, since: 5 }).start, 5);
   assert.equal(discordActivity({ ...game, id: "x\"y" }, { join: true }).joinUrl, undefined);
+  assert.equal(discordActivity({ ...game, custom: true }).state, "Free for All on SkyTemple (custom game)");
   assert.equal(discordActivity(undefined), null);
 });
 

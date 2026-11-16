@@ -78,7 +78,7 @@ function showCounter(on) {
   counter?.remove();
   counter = null;
   if (!on) return;
-  css(".mc-fps{position:fixed;left:6px;top:4px;z-index:2147482000;padding:1px 6px;border-radius:4px;background:rgba(0,0,0,.45);color:#9ad7ff;font:600 12px/18px Consolas,monospace!important;pointer-events:none;white-space:nowrap}", "mercury-fps");
+  css(".mc-fps{position:fixed;left:6px;top:4px;z-index:2147482000;padding:2px 8px;border-radius:var(--mc-radius);background:var(--mc-plate);color:var(--mc-ink);font:15px/20px var(--mc-font)!important;font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}", "mercury-fps");
   counter = document.body.appendChild(h("div", { class: "mc-fps" }, "…"));
   poll();
   timer = setInterval(poll, 500);

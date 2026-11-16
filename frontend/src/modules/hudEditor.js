@@ -41,27 +41,27 @@ const SELECTORS = ELEMENTS.map(([sel]) => sel);
 const EDIT_CSS = `
 html.mc-hud-edit #inGameUI { display: block !important; }
 html.mc-hud-edit #menuHolder, html.mc-hud-edit #instructionHolder, html.mc-hud-edit #aHolder, html.mc-hud-edit #infoHolder { visibility: hidden !important; }
-.mc-hud-layer { position: fixed; inset: 0; z-index: 2147482000; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: #e7e9ec; user-select: none; }
-.mc-hud-layer, .mc-hud-layer * { box-sizing: border-box; font-family: "Segoe UI", system-ui, sans-serif !important; }
-.mc-hud-frame { position: fixed; border: 1px dashed rgba(154, 215, 255, 0.85); background: rgba(47, 134, 194, 0.12); cursor: move; }
-.mc-hud-frame:hover, .mc-hud-frame.drag { border-style: solid; background: rgba(47, 134, 194, 0.24); }
+.mc-hud-layer { position: fixed; inset: 0; z-index: 2147482000; font: 15px/1.35 var(--mc-font); color: var(--mc-ink); user-select: none; }
+.mc-hud-layer, .mc-hud-layer * { box-sizing: border-box; font-family: var(--mc-font) !important; }
+.mc-hud-frame { position: fixed; border: 2px dashed rgba(33, 150, 243, 0.9); background: rgba(33, 150, 243, 0.12); cursor: move; }
+.mc-hud-frame:hover, .mc-hud-frame.drag { border-style: solid; background: rgba(33, 150, 243, 0.24); }
 .mc-hud-frame.hidden { border-color: rgba(255, 255, 255, 0.4); background: rgba(0, 0, 0, 0.3); }
-.mc-hud-tag { position: absolute; left: -1px; bottom: 100%; display: flex; gap: 6px; align-items: center; padding: 1px 4px 1px 7px; font-size: 11px; white-space: nowrap; color: #08131d; background: #9ad7ff; border-radius: 4px 4px 0 0; }
-.mc-hud-frame.hidden .mc-hud-tag { background: #c9ced6; }
-.mc-hud-tag button { padding: 0 5px; font: inherit; color: inherit; background: rgba(0, 0, 0, 0.12); border: 0; border-radius: 3px; cursor: pointer; }
-.mc-hud-size { position: absolute; right: -6px; bottom: -6px; width: 11px; height: 11px; background: #9ad7ff; border: 1px solid #08131d; border-radius: 2px; cursor: nwse-resize; }
+.mc-hud-tag { position: absolute; left: -2px; bottom: 100%; display: flex; gap: 6px; align-items: center; padding: 1px 4px 1px 7px; font-size: 13px; white-space: nowrap; color: #fff; background: var(--mc-action); border-radius: 2px 2px 0 0; }
+.mc-hud-frame.hidden .mc-hud-tag { background: var(--mc-head); }
+.mc-hud-tag button { padding: 0 5px; font: inherit; color: inherit; background: rgba(0, 0, 0, 0.2); border: 0; border-radius: 2px; cursor: pointer; }
+.mc-hud-size { position: absolute; right: -6px; bottom: -6px; width: 11px; height: 11px; background: var(--mc-action); border: 1px solid #fff; border-radius: 2px; cursor: nwse-resize; }
 .mc-hud-guide { position: fixed; display: none; background: #ff5fa2; pointer-events: none; }
 .mc-hud-guide.v { top: 0; bottom: 0; width: 1px; }
 .mc-hud-guide.h { left: 0; right: 0; height: 1px; }
 .mc-hud-bar {
   position: fixed; top: 12px; left: 50%; translate: -50% 0; display: flex; gap: 8px; align-items: center; max-width: 96vw;
-  padding: 8px 10px 8px 14px; background: #14161a; border: 1px solid #2a2e36; border-radius: 10px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  padding: 8px 10px 8px 14px; background: var(--mc-window); border-top: 3px solid var(--mc-action); border-radius: var(--mc-radius); box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
-.mc-hud-bar b { color: #9ad7ff; }
-.mc-hud-list { position: fixed; top: 64px; left: 50%; translate: -50% 0; width: 340px; max-height: 70vh; overflow-y: auto; padding: 6px; background: #14161a; border: 1px solid #2a2e36; border-radius: 10px; }
-.mc-hud-list label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: 6px; cursor: pointer; }
-.mc-hud-list label:hover { background: #1d2026; }
-.mc-hud-list small { margin-left: auto; color: #6f7783; }
+.mc-hud-bar b { color: var(--mc-ink); font-weight: 400; font-size: 18px; }
+.mc-hud-list { position: fixed; top: 64px; left: 50%; translate: -50% 0; width: 340px; max-height: 70vh; overflow-y: auto; padding: 6px; background: var(--mc-window); border-radius: var(--mc-radius); box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); }
+.mc-hud-list label { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border-radius: var(--mc-radius); cursor: pointer; }
+.mc-hud-list label:hover { background: rgba(0, 0, 0, 0.2); }
+.mc-hud-list small { margin-left: auto; color: var(--mc-muted); }
 `;
 
 const saved = () => cleanLayout(settings.get(LAYOUT), SELECTORS);

@@ -6,7 +6,8 @@ import { css, h, waitFor } from "../core/dom.js";
 const CSS = `
 #mc-menu-timer {
   position: absolute; top: 212px; left: 50%; z-index: 11; translate: -50% 0; display: flex; align-items: center; gap: 8px;
-  padding: 6px 16px; font-size: 30px; color: #fff; background: rgba(0, 0, 0, 0.5); border-radius: 6px; pointer-events: none;
+  padding: 6px 16px; font-size: 30px; color: var(--mc-ink); background: var(--mc-plate); border-radius: var(--mc-radius); pointer-events: none;
+  font-variant-numeric: tabular-nums;
 }
 #mc-menu-timer .material-icons { font-size: 28px; opacity: 0.8; }
 #uiBase:not(.onMenu) #mc-menu-timer, #mc-menu-timer.empty { display: none; }

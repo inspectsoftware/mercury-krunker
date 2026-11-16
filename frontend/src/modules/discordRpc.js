@@ -1,6 +1,5 @@
 // Discord Rich Presence from Krunker's own getGameActivity(). The host speaks Discord's local IPC (src/discord.rs);
-// this module sends the activity every few seconds when it changes. It runs as Mercury Client's own Discord
-// application unless the player sets another ID (empty: off).
+// this module sends the activity every few seconds when it changes, as Mercury Client's own Discord application.
 
 /** Mercury Client's Discord application: its name, icon and the "mercury" art asset. Public by design. */
 const MERCURY_APP_ID = "1571970847302754484";
@@ -15,8 +14,7 @@ let sentAt = 0;
 let pausedUntil = 0;
 
 async function tick() {
-  const clientId = String(settings.get("discordRpc.clientId") ?? "").trim();
-  if (!clientId) {
+  if (!settings.get("discordRpc.enabled")) {
     if (last !== null) call("discord.clear").catch(() => {});
     last = null;
     return;
@@ -27,11 +25,11 @@ async function tick() {
     game = window.getGameActivity?.();
   } catch {}
   const activity = discordActivity(game, { since, join: settings.get("discordRpc.joinButton") });
-  const key = JSON.stringify([clientId, activity]);
+  const key = JSON.stringify(activity);
   // Resend now and then too, in case Discord restarted.
   if (key === last && Date.now() - sentAt < 60000) return;
   try {
-    await call("discord.activity", { clientId, activity });
+    await call("discord.activity", { clientId: MERCURY_APP_ID, activity });
     last = key;
     sentAt = Date.now();
   } catch (error) {
@@ -46,19 +44,9 @@ async function tick() {
 export default {
   id: "discordRpc",
   name: "Discord Rich Presence",
-  desc: "Shows your mode, map, class and time left on your Discord profile, from Krunker's own activity data.",
+  desc: "Shows \"Playing Krunker.io\" with your mode, map and time left on your Discord profile, from Krunker's own activity data.",
   category: "Social",
-  live: true,
   settings: [
-    {
-      key: "clientId",
-      label: "Discord application ID",
-      desc: "Mercury Client's own by default. Use your own application's ID for another name or picture; empty turns it off.",
-      type: "text",
-      default: MERCURY_APP_ID,
-      placeholder: "17 to 20 digits",
-      onChange: () => ((last = null), (pausedUntil = 0)),
-    },
     {
       key: "joinButton",
       label: "Join button",

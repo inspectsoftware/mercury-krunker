@@ -96,16 +96,16 @@ async function refresh() {
 }
 
 css(
-  `.mc-stats { position: fixed; z-index: 2147482000; min-width: 170px; padding: 7px 11px; color: #fff; background: rgba(10, 12, 16, 0.55);
-     border-radius: 8px; pointer-events: none; font: 13px/1.45 "Segoe UI", system-ui, sans-serif !important; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); }
+  `.mc-stats { position: fixed; z-index: 2147482000; min-width: 190px; padding: 7px 11px; color: var(--mc-ink); background: var(--mc-plate);
+     border-radius: var(--mc-radius); pointer-events: none; font: 16px/1.35 var(--mc-font) !important; font-variant-numeric: tabular-nums; }
    .mc-stats[hidden] { display: none; }
    .mc-stats * { font-family: inherit !important; }
-   .mc-stats b { color: #9ad7ff; font-weight: 600; }
+   .mc-stats b { color: var(--mc-muted); font-weight: 400; }
    .mc-stats.top-left { top: 12px; left: 12px; } .mc-stats.top-right { top: 12px; right: 12px; }
    .mc-stats.bottom-left { bottom: 12px; left: 12px; } .mc-stats.bottom-right { bottom: 12px; right: 12px; }
-   .mc-stats-sub { color: rgba(255, 255, 255, 0.7); font-size: 12px; }
-   .mc-stats-bar { height: 4px; margin: 3px 0 5px; background: rgba(255, 255, 255, 0.18); border-radius: 2px; overflow: hidden; }
-   .mc-stats-bar > div { height: 100%; background: #2f86c2; }`,
+   .mc-stats-sub { color: var(--mc-muted); font-size: 14px; }
+   .mc-stats-bar { height: 6px; margin: 4px 0 6px; background: rgba(255, 255, 255, 0.18); border-radius: 1px; overflow: hidden; }
+   .mc-stats-bar > div { height: 100%; background: var(--mc-gold); }`,
   "mercury-rank-stats",
 );
 

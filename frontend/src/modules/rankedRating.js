@@ -49,11 +49,16 @@ async function show() {
   const box = h(
     "div",
     { class: "mc-rank-box", id: "mc-rank-box" },
-    h("b", {}, `${Math.round(p.conservative_rating)} MMR`),
-    progress.delta != null && h("span", { class: progress.delta >= 0 ? "mc-good" : "mc-bad" }, ` ${sign}${progress.delta}`),
-    p.rank ? ` · #${p.rank}` : "",
-    h("br"),
-    h("span", { class: "mc-muted" }, `Season ${season} · ${p.wins}W ${p.losses}L`, progress.toReward != null ? ` · ${progress.toReward} to the next reward` : ""),
+    h(
+      "div",
+      { class: "mc-rank-top" },
+      h("b", {}, Math.round(p.conservative_rating).toLocaleString("en-US")),
+      " MMR",
+      // A change of 0 is grey: only a real gain or loss gets a colour.
+      progress.delta != null && h("span", { class: progress.delta > 0 ? "mc-good" : progress.delta < 0 ? "mc-bad" : "mc-rank-pos" }, ` ${sign}${progress.delta}`),
+      p.rank ? h("span", { class: "mc-rank-pos" }, ` · #${p.rank.toLocaleString("en-US")}`) : "",
+    ),
+    h("div", { class: "mc-rank-sub" }, `Season ${season} · ${p.wins}W ${p.losses}L`, progress.toReward != null ? ` · ${progress.toReward} to the next reward` : ""),
   );
   document.getElementById("mc-rank-box")?.remove();
   if (getComputedStyle(ranked).position === "static") ranked.style.position = "relative";

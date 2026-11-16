@@ -47,9 +47,9 @@ function addButton(menu) {
 }
 
 css(
-  `.mc-bp-all { position: sticky; top: 0; float: right; z-index: 5; margin: 0 0 6px 8px; padding: 8px 18px; border-radius: 6px; cursor: pointer;
-     font-size: 18px; color: #fff; background: #2f86c2; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4); }
-   .mc-bp-all:hover { background: #3b97d6; }`,
+  `.mc-bp-all { position: sticky; top: 0; float: right; z-index: 5; margin: 0 0 6px 8px; padding: 8px 18px; border-radius: 4px; cursor: pointer;
+     font-size: 18px; color: #fff; background: var(--mc-action); }
+   .mc-bp-all:hover { filter: brightness(1.15); }`,
   "mercury-battle-pass",
 );
 

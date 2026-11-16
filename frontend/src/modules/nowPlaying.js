@@ -32,17 +32,17 @@ async function tick() {
 }
 
 css(
-  `.mc-now { position: fixed; z-index: 2147482000; max-width: 340px; display: flex; align-items: baseline; gap: 7px; padding: 6px 11px;
-     font: 13px/1.3 "Segoe UI", system-ui, sans-serif !important; color: #fff; background: rgba(10, 12, 16, 0.55); border-radius: 8px;
-     pointer-events: none; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6); }
+  `.mc-now { position: fixed; z-index: 2147482000; max-width: 360px; display: flex; align-items: baseline; gap: 8px; padding: 6px 11px;
+     font: 16px/1.25 var(--mc-font) !important; color: var(--mc-ink); background: var(--mc-plate); border-radius: var(--mc-radius);
+     pointer-events: none; }
    .mc-now[hidden] { display: none; }
    .mc-now * { font-family: inherit !important; }
    .mc-now.top-left { top: 12px; left: 12px; } .mc-now.top-right { top: 12px; right: 12px; }
    .mc-now.bottom-left { bottom: 12px; left: 12px; } .mc-now.bottom-right { bottom: 12px; right: 12px; }
    .mc-now.paused { opacity: 0.6; }
-   .mc-now-icon { color: #9ad7ff; }
-   .mc-now-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-   .mc-now-artist { color: rgba(255, 255, 255, 0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }`,
+   .mc-now-icon { color: var(--mc-gold); }
+   .mc-now-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+   .mc-now-artist { color: var(--mc-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }`,
   "mercury-now-playing",
 );
 

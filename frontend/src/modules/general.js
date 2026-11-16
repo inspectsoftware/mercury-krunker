@@ -10,7 +10,6 @@ import * as settings from "../core/settings.js";
 const category = "General";
 
 hotkey({ id: "general.menuKey", label: "Open Mercury settings", key: "F8", category, handler: () => krunkerTab.toggle() });
-hotkey({ id: "general.fullscreenKey", label: "Fullscreen", key: "F11", category, handler: () => call("window.fullscreen") });
 
 async function exportSettings() {
   const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-");
@@ -69,6 +68,15 @@ export default {
       type: "bool",
       default: false,
       onChange: () => toast("Applies on the next lobby (or press F5)."),
+    },
+    {
+      key: "windowMode",
+      label: "Start as",
+      desc: "How the window opens.",
+      type: "select",
+      default: "maximized",
+      restart: true,
+      options: [["maximized", "Maximized"], ["borderless", "Borderless fullscreen"], ["windowed", "Windowed"]],
     },
     { key: "versionTag", label: "Version tag in the menu", type: "bool", default: true },
     { key: "restart", label: "Restart client", desc: "Needed after changing Engine settings.", type: "action", button: "Restart", run: () => call("app.restart") },

@@ -1,76 +1,99 @@
+/* Mercury's own UI wears Krunker's clothes: the values below are Krunker's (read from its menu and settings window),
+   so Mercury's windows and widgets look like part of the game. GameFont carries titles, labels, figures and buttons;
+   the system face only carries sentences and tables, where GameFont is hard to read. */
+:root {
+  --mc-font: GameFont, "Segoe UI", sans-serif;
+  --mc-text: "Segoe UI", system-ui, sans-serif;
+  --mc-plate: rgba(0, 0, 0, 0.55); /* Krunker's play buttons: anything that sits on the 3D scene */
+  --mc-window: #353535;            /* Krunker's windows */
+  --mc-head: #505050;              /* Krunker's settings folder headers */
+  --mc-well: #2a2a2a;              /* rows, wells and fields inside a window */
+  --mc-line: rgba(255, 255, 255, 0.15);
+  --mc-ink: #fff;
+  --mc-muted: rgba(255, 255, 255, 0.65); /* Krunker's setting labels */
+  --mc-action: #2196f3;            /* Krunker's settings buttons and switches */
+  --mc-good: #7ce87a;              /* Krunker's Ranked button */
+  --mc-bad: #eb5656;
+  --mc-gold: #fbc02d;              /* Krunker's highlight (Starter, rewards) */
+  --mc-radius: 2px;
+}
+
 .mc-overlay {
   position: fixed; inset: 0; z-index: 2147483000; display: flex; align-items: center; justify-content: center;
-  background: rgba(5, 7, 10, 0.6); font: 14px/1.45 "Segoe UI", system-ui, sans-serif; color: #e7e9ec;
+  background: rgba(0, 0, 0, 0.5); font: 16px/1.4 var(--mc-font); color: var(--mc-ink);
 }
 .mc-overlay * { box-sizing: border-box; }
-/* Krunker sets its GameFont on every element; Mercury's own windows read better in the system font. */
-.mc-overlay, .mc-overlay *, .mc-toast, .mc-version { font-family: "Segoe UI", system-ui, sans-serif !important; }
+.mc-overlay, .mc-overlay *, .mc-toast, .mc-version { font-family: var(--mc-font) !important; }
+.mc-overlay .mc-desc, .mc-overlay .mc-textarea { font-family: var(--mc-text) !important; }
 .mc-window {
   width: min(980px, 94vw); height: min(700px, 90vh); display: grid; grid-template-columns: 210px 1fr; grid-template-rows: 58px 1fr;
-  background: #14161a; border: 1px solid #2a2e36; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65);
+  background: var(--mc-window); border-radius: 6px; overflow: hidden; box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
-.mc-head { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; padding: 0 14px 0 18px; border-bottom: 1px solid #2a2e36; }
-.mc-title { font-weight: 700; font-size: 16px; letter-spacing: 0.03em; white-space: nowrap; }
-.mc-title b { color: #9ad7ff; }
-.mc-title small { color: #6f7783; font-weight: 400; margin-left: 6px; }
+.mc-head { grid-column: 1 / 3; display: flex; align-items: center; gap: 14px; padding: 0 14px 0 18px; background: var(--mc-head); border-top: 4px solid rgba(255, 255, 255, 0.3); }
+.mc-title { font-size: 22px; white-space: nowrap; }
+.mc-title b { color: var(--mc-ink); font-weight: 400; }
+.mc-title small { color: var(--mc-muted); margin-left: 6px; font-size: 16px; }
 .mc-search {
-  flex: 1; max-width: 380px; margin-left: auto; padding: 8px 11px; font: inherit; color: inherit;
-  background: #0e1013; border: 1px solid #2a2e36; border-radius: 8px; outline: none;
+  flex: 1; max-width: 380px; margin-left: auto; padding: 6px 10px; font: 16px var(--mc-font); color: #000;
+  background: #fff; border: 0; border-radius: var(--mc-radius); outline: none;
 }
-.mc-search:focus { border-color: #4b8fbf; }
-.mc-x { width: 34px; height: 34px; border: 0; border-radius: 8px; background: none; color: #9aa1ac; font-size: 20px; cursor: pointer; }
-.mc-x:hover { background: #22262d; color: #fff; }
-.mc-nav { border-right: 1px solid #2a2e36; padding: 10px 8px; overflow-y: auto; }
+.mc-search:focus { box-shadow: 0 0 0 2px var(--mc-action); }
+.mc-x { width: 34px; height: 34px; border: 0; border-radius: var(--mc-radius); background: none; color: var(--mc-muted); font-size: 24px; cursor: pointer; }
+.mc-x:hover { background: rgba(0, 0, 0, 0.25); color: var(--mc-ink); }
+.mc-nav { background: rgba(0, 0, 0, 0.2); padding: 10px 8px; overflow-y: auto; }
 .mc-nav button {
-  display: block; width: 100%; padding: 8px 11px; margin-bottom: 2px; text-align: left; font: inherit; color: #a9b0ba;
-  background: none; border: 0; border-radius: 7px; cursor: pointer;
+  display: block; width: 100%; padding: 8px 11px; margin-bottom: 2px; text-align: left; font: 18px var(--mc-font); color: var(--mc-muted);
+  background: none; border: 0; border-radius: var(--mc-radius); cursor: pointer;
 }
-.mc-nav button:hover { background: #1b1e24; color: #e7e9ec; }
-.mc-nav button.on { background: #232831; color: #fff; }
+.mc-nav button:hover { color: var(--mc-ink); }
+.mc-nav button.on { background: rgba(0, 0, 0, 0.35); color: var(--mc-ink); }
 .mc-body { overflow-y: auto; padding: 6px 22px 24px; }
-.mc-body h3 { margin: 18px 0 2px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #6f7783; }
-.mc-row { display: flex; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid #1d2026; }
+.mc-body h3 { margin: 20px 0 4px; font-size: 18px; font-weight: 400; color: var(--mc-muted); }
+.mc-row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-bottom: 1px solid var(--mc-line); }
 .mc-row.sub { padding-left: 20px; }
 .mc-row.off { opacity: 0.45; }
 .mc-label { flex: 1; min-width: 0; }
-.mc-name { color: #eceef1; }
-.mc-row.module > .mc-label .mc-name { font-weight: 600; }
-.mc-desc { color: #858c97; font-size: 12.5px; margin-top: 2px; }
-.mc-tag { display: inline-block; margin-left: 8px; padding: 0 6px; font-size: 11px; border-radius: 4px; background: #2b2f37; color: #b9c0ca; vertical-align: 1px; }
-.mc-switch { position: relative; width: 42px; height: 24px; flex: none; border-radius: 12px; background: #333842; border: 0; cursor: pointer; transition: background 0.15s; }
-.mc-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #c9ced6; transition: transform 0.15s; }
-.mc-switch.on { background: #2f86c2; }
-.mc-switch.on::after { transform: translateX(18px); background: #fff; }
+.mc-name { color: var(--mc-ink); font-size: 18px; }
+.mc-desc { color: var(--mc-muted); font-size: 13px; margin-top: 2px; }
+.mc-tag { display: inline-block; margin-left: 8px; padding: 1px 6px; font-size: 13px; border-radius: var(--mc-radius); background: var(--mc-well); color: var(--mc-muted); vertical-align: 2px; }
+/* Krunker's switch: a squared track and knob. */
+.mc-switch { position: relative; width: 54px; height: 28px; flex: none; border-radius: 4px; background: #a8a8a8; border: 0; cursor: pointer; transition: background 0.15s; }
+.mc-switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 20px; height: 20px; border-radius: 3px; background: #fff; transition: transform 0.15s; }
+.mc-switch.on { background: var(--mc-action); }
+.mc-switch.on::after { transform: translateX(26px); }
 .mc-input, .mc-select {
-  min-width: 170px; padding: 7px 10px; font: inherit; color: inherit; background: #0e1013; border: 1px solid #2a2e36; border-radius: 7px; outline: none;
+  min-width: 170px; padding: 5px 9px; font: 16px var(--mc-font); color: #000; background: #fff; border: 0; border-radius: var(--mc-radius); outline: none;
 }
-.mc-input:focus, .mc-select:focus { border-color: #4b8fbf; }
+.mc-input:focus, .mc-select:focus { box-shadow: 0 0 0 2px var(--mc-action); }
 .mc-input.wide { min-width: 320px; }
 .mc-textarea { width: 330px; height: 170px; resize: vertical; font: 12.5px/1.45 Consolas, "Cascadia Mono", monospace !important; white-space: pre; }
 .mc-range { display: flex; align-items: center; gap: 10px; }
-.mc-range input { width: 160px; accent-color: #2f86c2; }
-.mc-range output { min-width: 46px; text-align: right; color: #c9ced6; font-variant-numeric: tabular-nums; }
+.mc-range input { width: 160px; accent-color: var(--mc-action); }
+.mc-range output { min-width: 46px; text-align: right; color: var(--mc-ink); font-variant-numeric: tabular-nums; }
+/* Krunker's buttons: flat, GameFont. The secondary one is a header-grey plate. */
 .mc-btn {
-  padding: 7px 14px; font: inherit; color: #e7e9ec; background: #252a32; border: 1px solid #343a44; border-radius: 7px; cursor: pointer; white-space: nowrap;
+  padding: 5px 12px; font: 16px/1.2 var(--mc-font); color: var(--mc-ink); background: rgba(0, 0, 0, 0.35); border: 0; border-radius: 4px; cursor: pointer; white-space: nowrap;
 }
-.mc-btn:hover { background: #2d333c; }
-.mc-btn.primary { background: #2f86c2; border-color: #2f86c2; color: #fff; }
+.mc-btn:hover { filter: brightness(1.15); }
+.mc-btn:active { transform: translateY(1px); }
+.mc-btn:focus-visible, .mc-x:focus-visible, .mc-nav button:focus-visible { outline: 2px solid var(--mc-ink); outline-offset: 1px; }
+.mc-btn.primary { background: var(--mc-action); }
 .mc-key { min-width: 110px; text-align: center; font-variant-numeric: tabular-nums; }
-.mc-key.listening { border-color: #4b8fbf; color: #9ad7ff; }
-.mc-empty { color: #6f7783; padding: 40px 0; text-align: center; }
+.mc-key.listening { box-shadow: 0 0 0 2px var(--mc-gold); }
+.mc-empty { color: var(--mc-muted); padding: 40px 0; text-align: center; }
 .mc-toasts { position: fixed; right: 18px; bottom: 18px; z-index: 2147483001; display: grid; gap: 8px; pointer-events: none; }
 .mc-toast {
-  max-width: 380px; padding: 10px 14px; font: 13px/1.4 "Segoe UI", system-ui, sans-serif; color: #e7e9ec;
-  background: #1c1f25; border: 1px solid #2f343d; border-radius: 9px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  max-width: 400px; padding: 10px 14px; font: 16px/1.35 var(--mc-font); color: var(--mc-ink);
+  background: var(--mc-window); border-top: 3px solid var(--mc-action); border-radius: var(--mc-radius); box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
 }
-.mc-version { position: absolute; left: 12px; bottom: 8px; z-index: 5; font: 11px "Segoe UI", sans-serif; color: rgba(255, 255, 255, 0.4); pointer-events: none; }
+.mc-version { position: absolute; left: 12px; bottom: 8px; z-index: 5; font-size: 13px; color: rgba(255, 255, 255, 0.45); pointer-events: none; }
 .mc-menu-btn { cursor: pointer; }
 .mc-huntbar {
   position: fixed; top: 12px; left: 50%; transform: translateX(-50%); z-index: 2147483002; display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px; background: #1c1f25; border: 1px solid #4b8fbf; border-radius: 10px; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-  font: 13.5px/1.4 "Segoe UI", system-ui, sans-serif !important; color: #e7e9ec;
+  padding: 10px 14px; background: var(--mc-window); border: 3px solid var(--mc-gold); border-radius: var(--mc-radius); box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  font: 16px/1.35 var(--mc-font) !important; color: var(--mc-ink);
 }
-.mc-huntbar .mc-btn { font-family: "Segoe UI", system-ui, sans-serif !important; }
+.mc-huntbar .mc-btn { font-family: var(--mc-font) !important; }
 /* The Mercury tab inside Krunker's settings window (krunkerTab.js) uses Krunker's own classes; these only add what
    Krunker has no style for. */
 .mc-koff { opacity: 0.45; }

@@ -137,18 +137,18 @@ function open() {
 }
 
 css(
-  `.mc-log-window { width: min(1000px, 94vw); height: min(720px, 90vh); display: flex; flex-direction: column; background: #14161a;
-     border: 1px solid #2a2e36; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65); }
-   .mc-log-head { display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 18px; border-bottom: 1px solid #2a2e36; }
+  `.mc-log-window { width: min(1000px, 94vw); height: min(720px, 90vh); display: flex; flex-direction: column; background: var(--mc-window);
+     border-radius: 6px; overflow: hidden; box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); }
+   .mc-log-head { display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 18px; background: var(--mc-head); border-top: 4px solid rgba(255, 255, 255, 0.3); }
    .mc-log-head .mc-title { margin-right: auto; }
    .mc-log-head .mc-input { min-width: 0; width: 170px; }
-   .mc-log-count { color: #6f7783; font-size: 12.5px; white-space: nowrap; font-variant-numeric: tabular-nums; }
-   .mc-log-list { flex: 1; overflow-y: auto; padding: 6px 18px 14px; font-size: 13.5px; user-select: text; }
-   .mc-log-line { padding: 3px 6px; border-radius: 5px; cursor: copy; overflow-wrap: anywhere; }
-   .mc-log-line:hover { background: #1d2026; }
-   .mc-log-line b { color: #9ad7ff; font-weight: 600; }
-   .mc-log-time { color: #6f7783; margin-right: 8px; font-variant-numeric: tabular-nums; }
-   .mc-log-lobby { margin: 12px 0 4px; font-size: 11.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #6f7783; border-bottom: 1px solid #1d2026; }`,
+   .mc-log-count { color: var(--mc-muted); font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+   .mc-log-list { flex: 1; overflow-y: auto; padding: 6px 18px 14px; font-size: 16px; user-select: text; }
+   .mc-log-line { padding: 3px 6px; border-radius: var(--mc-radius); cursor: copy; overflow-wrap: anywhere; }
+   .mc-log-line:hover { background: rgba(0, 0, 0, 0.2); }
+   .mc-log-line b { color: var(--mc-gold); font-weight: 400; }
+   .mc-log-time { color: var(--mc-muted); margin-right: 8px; font-variant-numeric: tabular-nums; }
+   .mc-log-lobby { margin: 14px 0 4px; font-size: 16px; color: var(--mc-muted); border-bottom: 1px solid var(--mc-line); }`,
   "mercury-chat-logs",
 );
 

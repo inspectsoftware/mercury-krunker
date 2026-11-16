@@ -50,7 +50,7 @@ wants. Windows first.
 - Rebindable hotkeys.
 - **Performance only:** one switch turns off every cosmetic module and hides its settings; switching back restores
   the player's choices.
-- Settings export and import; restart; `--safe-mode`; single instance; version tag; F11 fullscreen.
+- Settings export and import; restart; `--safe-mode`; single instance; version tag; start maximized, borderless or windowed.
 - **Aim freeze:** `src/freeze_fix.rs` takes the left button's state out of raw mouse moves, so Chromium never
   starts the input priority that starves the game's network messages. Krunker's own fix (`kro_setngss_aimFreezeFix`)
   is on by default as well.
@@ -168,7 +168,7 @@ maps load can be replaced with the swapper.
 
 - **Hardpoint enemy counter: not built.** The HUD shows only your own objective score and the team scores, never
   how many enemies are on the point.
-- **Discord:** needs the owner's Discord application ID (Social → Discord application ID).
+- **Discord:** runs as Mercury Client's own application (ID built in, no setting).
 - **Still to verify with a login:** battle pass, rank panel, end-message switching.
 
 - Better chat.

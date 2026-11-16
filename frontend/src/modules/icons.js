@@ -1,10 +1,9 @@
-// Mercury icons: our own SVGs for the kill counter, ammo, hitmarker, reticle and scope, each with its own switch.
+// Mercury icons: our own SVGs for the kill counter, ammo, hitmarker, reticle and scope, all five with one switch.
 // Krunker draws all five as <img> elements (#killsIcon, #ammoIcon, #hitmarker, #aimDot, #recticleImg), so CSS
 // `content: url()` swaps the picture without touching the player's Krunker settings (customKills, customAmmo...),
-// and switching an icon off brings back whatever the player had.
+// and switching the module off brings back whatever the player had.
 
 import { liveCss } from "../lib/style.js";
-import * as settings from "../core/settings.js";
 
 const svg = (body, view, size) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${view} ${view}" width="${size}" height="${size}">${body}</svg>`;
 
@@ -72,14 +71,12 @@ const mod = {
   category: "Look",
   defaultOn: false,
   live: true,
-  settings: Object.entries(ICONS).map(([key, icon]) => ({ key, label: icon.label, type: "bool", default: true, onChange: () => apply() })),
   init: () => apply(),
 };
 
 const apply = liveCss(mod, 40, () =>
-  Object.entries(ICONS)
-    .filter(([key]) => settings.get(`icons.${key}`))
-    .map(([, icon]) => `${icon.selector} { content: ${url(icon.svg)} !important; }`)
+  Object.values(ICONS)
+    .map((icon) => `${icon.selector} { content: ${url(icon.svg)} !important; }`)
     .join("\n"),
 );
 

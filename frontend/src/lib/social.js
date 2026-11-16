@@ -57,8 +57,8 @@ export function syncEndMessage({ sub, owner, current, saved }) {
 export function discordActivity(game, { now = Date.now(), since = now, join = false } = {}) {
   if (!game || typeof game !== "object" || !game.mode) return null;
   const activity = {
-    details: game.map ? `${game.mode} on ${game.map}` : String(game.mode),
-    state: game.class?.name ? `Playing ${game.class.name}${game.custom ? " (custom game)" : ""}` : "In the menu",
+    details: "Playing Krunker.io",
+    state: (game.map ? `${game.mode} on ${game.map}` : String(game.mode)) + (game.custom ? " (custom game)" : ""),
   };
   // Round to 10 s so a ticking timer does not count as a change.
   if (game.time > 0) activity.end = Math.round((now + game.time * 1000) / 10000) * 10000;
